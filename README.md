@@ -29,22 +29,42 @@ NeuroVision-X implements a **matched protocol** for 3D U-Net and Attention U-Net
 
 ## Architecture
 
-```mermaid
-flowchart LR
-  MRI["BraTS NIfTI T1 T1ce T2 FLAIR"] --> Data["data validate split z-score"]
-  Data --> Models["3D U-Net or Attention U-Net optional SE stem"]
-  Models --> Train["Dice plus CE optional ET boundary"]
-  Train --> CKPT["experiments best.pt"]
-  CKPT --> Eval["Dice HD95 ECE MC dropout"]
-  CKPT --> XAI["Grad-CAM overlays"]
-  CKPT --> Demo["app_research.py"]
-```
+The figure below is the **implemented** research workflow. It is not a claim that BraTS training or evaluation has been run.
+
+![NeuroVision-X implemented research pipeline](assets/architecture.png)
 
 Module map: [`docs/architecture.md`](docs/architecture.md).
+
+## MRI examples
+
+Official BraTS NIfTI volumes are **not** in this repository (`data/raw/brats/` is a README only). The pipeline expects four co-registered channels: T1, T1ce, T2, and FLAIR. **No genuine patient MRI is shown here**, because none is stored in git.
+
+![Expected MRI input channels — empty placeholders, not scans](assets/mri_input_layout.png)
+
+## Model architecture
+
+Baseline backbone: **3D U-Net** (Çiçek et al., 2016) as implemented in `src/neurovisionx/models/unet3d.py`, with `in_channels=4`, `out_channels=4` (background, NCR, ED, ET), and YAML features `[16, 32, 64, 128]`. Attention U-Net and an optional SE stem are config alternatives. This figure documents the **code**, not a trained BraTS model.
+
+![Implemented 3D U-Net from configs/model.yaml](assets/model_architecture.png)
+
+A smoke checkpoint trained on **random tensors** (2 epochs, CPU, features `[8, 16]`) may exist locally. That is a software check, not this architecture trained on MRI.
+
+## Segmentation results
+
+No BraTS-trained 3D U-Net checkpoint is in this tree. Patient-level Dice, HD95, and ECE have **not been measured**. Segmentation overlays on real MRI are therefore **omitted** rather than simulated.
+
+| Comparison | Dice WT | Dice TC | Dice ET | HD95 | ECE |
+| --- | --- | --- | --- | --- | --- |
+| A 3D U-Net | not measured | not measured | not measured | not measured | not measured |
+| B Attention U-Net | not measured | not measured | not measured | not measured | not measured |
+| C SE + ET boundary + MC | not measured | not measured | not measured | not measured | not measured |
+
+Smoke (random tensors, 2 epochs, CPU): synthetic val Dice WT/TC/ET ≈ 0.034 / 0.024 / 0.001. That is **not** a challenge score and is not an MRI prediction. Details: [`docs/experimental_results.md`](docs/experimental_results.md).
 
 ## Repository layout
 
 ```
+assets/            README diagrams (no patient MRI)
 configs/           data, model, training, ablations, evaluation YAML
 data/              raw / processed / splits (no NIfTI in git)
 src/neurovisionx/  3D segmentation package
@@ -106,18 +126,6 @@ If only the smoke checkpoint exists, use the labelled **interface test** (random
 ```
 
 Reproducibility notes: [`docs/reproducibility.md`](docs/reproducibility.md). Demonstration walkthrough: [`docs/demo_script.md`](docs/demo_script.md).
-
-## Results
-
-Only recorded measurements are shown. Smoke numbers are **not** challenge scores.
-
-| Comparison | Dice WT | Dice TC | Dice ET | HD95 | ECE |
-| --- | --- | --- | --- | --- | --- |
-| A 3D U-Net | not measured | not measured | not measured | not measured | not measured |
-| B Attention U-Net | not measured | not measured | not measured | not measured | not measured |
-| C SE + ET boundary + MC | not measured | not measured | not measured | not measured | not measured |
-
-Smoke (random tensors, 2 epochs, CPU): synthetic val Dice WT/TC/ET ≈ 0.034 / 0.024 / 0.001. Do not cite.
 
 ## Documentation
 
