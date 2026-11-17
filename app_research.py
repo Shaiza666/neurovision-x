@@ -24,6 +24,10 @@ from neurovisionx.demo.uploads import (
 from neurovisionx.explainability.overlays import mri_plane
 from neurovisionx.explainability.views import ORIENTATION_ORDER
 
+REPO_ROOT = Path(__file__).resolve().parent
+ASSETS_DIR = REPO_ROOT / "assets"
+FIGURES_DIR = REPO_ROOT / "docs" / "figures"
+
 DISCLAIMER = (
     "NeuroVision-X is an experimental research prototype. "
     "It is not a clinically validated diagnostic system. "
@@ -70,6 +74,43 @@ def _to_image(plane: np.ndarray) -> np.ndarray:
         array = np.stack([norm, norm, norm], axis=-1)
     array = np.clip(array, 0.0, 1.0)
     return (array * 255.0).astype(np.uint8)
+
+
+def _show_png(path: Path, caption: str) -> None:
+    if path.is_file():
+        st.image(str(path), caption=caption, width="stretch")
+    else:
+        st.caption(f"Figure missing on disk: `{path.as_posix()}`")
+
+
+def _reference_figures() -> None:
+    st.markdown("#### Reference figures")
+    st.caption(
+        "Project diagrams and a watermarked software-check figure. "
+        "They are **not** BraTS patient MRI and **not** uploaded NIfTI."
+    )
+    tab_pipe, tab_model, tab_check = st.tabs(
+        ["Pipeline", "3D U-Net", "Software check (not MRI)"]
+    )
+    with tab_pipe:
+        _show_png(
+            ASSETS_DIR / "architecture.png",
+            "Implemented research pipeline. Official BraTS volumes are not in this repository.",
+        )
+    with tab_model:
+        _show_png(
+            ASSETS_DIR / "model_architecture.png",
+            "3D U-Net as coded in src/neurovisionx/models/unet3d.py. Not a BraTS-trained model card.",
+        )
+    with tab_check:
+        _show_png(
+            FIGURES_DIR / "explain_synthetic_not_mri" / "orthogonal_overlay.png",
+            "Watermarked smoke overlay on random tensors — not MRI, not a patient, not research.",
+        )
+        _show_png(
+            FIGURES_DIR / "smoke_not_research_curves.png",
+            "Smoke training curves on random tensors. Not BraTS scores.",
+        )
 
 
 def _overlay_mri_pred(mri: np.ndarray, pred_rgb: np.ndarray, alpha: float = 0.45) -> np.ndarray:
@@ -253,6 +294,10 @@ def main() -> None:
             "Segmentation is optional (enables GT comparison). "
             "Missing modalities are rejected; they are not filled with zeros."
         )
+        _show_png(
+            ASSETS_DIR / "mri_input_layout.png",
+            "Expected channels. These empty panels are not scans and are not filled with zeros.",
+        )
         c1, c2, c3, c4, c5 = st.columns(5)
         nifti_types = ["nii", "nii.gz", "gz"]
         uploads = {
@@ -327,12 +372,18 @@ def main() -> None:
                         )
                         st.info(result["status_banner"])
                         st.caption("Open Anatomy, Segmentation, Uncertainty, Explainability, and Metrics next.")
+        _reference_figures()
         return
 
     case = st.session_state.case
     result = st.session_state.result
     if case is None:
         st.info("Load data on **1. Data** first.")
+        _show_png(
+            ASSETS_DIR / "mri_input_layout.png",
+            "No volume is loaded. Official BraTS NIfTI is not bundled with this app.",
+        )
+        _reference_figures()
         st.stop()
     if result is None:
         st.info("Run inference on **1. Data** first. Views stay empty until a real forward pass.")
