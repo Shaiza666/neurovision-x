@@ -96,3 +96,53 @@ runs:
     uncertainty:
       method: mc_dropout
       samples: 10
+
+  # Phase 5: remove one proposed component from C without extra training.
+  - id: C_minus_se
+    train: false
+    checkpoint_from: A3_boundary_et
+    isolates: ablation_se
+    description: "Proposed minus SE: A3 weights + MC T=10"
+    model:
+      name: unet3d
+      fusion: early
+      optional_monai: false
+    loss:
+      boundary_weight: 0.1
+      boundary_classes: [3]
+    uncertainty:
+      method: mc_dropout
+      samples: 10
+
+  - id: C_minus_boundary
+    train: false
+    checkpoint_from: A1_se_fusion
+    isolates: ablation_boundary
+    description: "Proposed minus boundary: A1 weights + MC T=10"
+    model:
+      name: unet3d
+      fusion: se
+      fusion_reduction: 2
+      optional_monai: false
+    loss:
+      boundary_weight: 0.0
+    uncertainty:
+      method: mc_dropout
+      samples: 10
+
+  - id: C_minus_mc
+    train: false
+    checkpoint_from: A5_combination
+    isolates: ablation_mc
+    description: "Proposed minus MC dropout: A5 weights, T=1"
+    model:
+      name: unet3d
+      fusion: se
+      fusion_reduction: 2
+      optional_monai: false
+    loss:
+      boundary_weight: 0.1
+      boundary_classes: [3]
+    uncertainty:
+      method: none
+      samples: 1

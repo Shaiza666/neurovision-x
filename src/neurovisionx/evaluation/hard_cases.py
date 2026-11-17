@@ -133,3 +133,24 @@ def uncertainty_error_report(
 def voxel_error_mask(pred: np.ndarray, target: np.ndarray) -> np.ndarray:
     """Boolean mismatch after BraTS label remap. Used for overlay QC."""
     return remap_brats_labels(pred) != remap_brats_labels(target)
+
+
+def rank_failures(
+    rows: list[dict[str, Any]],
+    *,
+    metric: str = "dice_et",
+    k: int = 10,
+    higher_is_better: bool = True,
+) -> list[dict[str, Any]]:
+    """Worst-k patients by ``metric``. Does not invent rows that were not recorded."""
+    scored: list[dict[str, Any]] = []
+    for row in rows:
+        if metric not in row:
+            continue
+        value = row[metric]
+        if value is None or value != value:
+            continue
+        scored.append(dict(row))
+    reverse = not higher_is_better
+    scored.sort(key=lambda item: float(item[metric]), reverse=reverse)
+    return scored[: max(int(k), 0)]

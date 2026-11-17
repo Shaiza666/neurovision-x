@@ -17,17 +17,11 @@ from neurovisionx.data.inventory import discover_inventory
 from neurovisionx.data.io import load_nifti
 from neurovisionx.data.preprocess import remap_seg, zscore_channels
 from neurovisionx.data.splits import load_split
+from neurovisionx.evaluation.metrics import brier_score_multiclass, expected_calibration_error
 from neurovisionx.evaluation.regions import region_scores
+from neurovisionx.evaluation.summarize import summarize_values
 from neurovisionx.utils.config import load_experiment_config
 from neurovisionx.utils.paths import project_root
-
-
-def _mean_std(values: list[float]) -> dict[str, float | None]:
-    finite = [v for v in values if v == v]
-    if not finite:
-        return {"mean": None, "std": None, "n": 0}
-    arr = np.asarray(finite, dtype=np.float64)
-    return {"mean": float(arr.mean()), "std": float(arr.std(ddof=0)), "n": int(arr.size)}
 
 
 def main() -> None:
@@ -54,11 +48,15 @@ def main() -> None:
 
     try:
         import torch
-        from neurovisionx.evaluation.predict import infer_volume, load_model_from_checkpoint
+        from neurovisionx.evaluation.cost import count_parameters, measure_gpu_memory, time_inference
+        from neurovisionx.evaluation.inference import sliding_window_logits
+        from neurovisionx.evaluation.predict import load_model_from_checkpoint
     except ImportError as exc:
         raise SystemExit('PyTorch is required. pip install -e ".[research]"') from exc
 
-    model, payload = load_model_from_checkpoint(ckpt, config["model"], map_location="cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model, payload = load_model_from_checkpoint(ckpt, config["model"], map_location=device)
+    model = model.to(device)
     if payload.get("smoke"):
         raise SystemExit(
             "This checkpoint was written by a synthetic smoke test. "
@@ -77,6 +75,8 @@ def main() -> None:
     inventory = discover_inventory(raw)
     cases = inventory.by_id()
     rows = []
+    timed = None
+    gpu_mem = None
     for patient_id in patient_ids:
         if patient_id in cases:
             files = cases[patient_id].path_map()
@@ -87,15 +87,42 @@ def main() -> None:
         channels = [load_nifti(files[name]) for name in ("t1", "t1ce", "t2", "flair")]
         image = zscore_channels(np.stack(channels, axis=0))
         target = remap_seg(load_nifti(files["seg"]))
-        volume = torch.from_numpy(np.ascontiguousarray(image)).unsqueeze(0)
-        pred = infer_volume(model, volume, patch, overlap=overlap).cpu().numpy()
-        scores = region_scores(pred, target, compute_hd95=True)
+        volume = torch.from_numpy(np.ascontiguousarray(image)).unsqueeze(0).to(device)
+        logits = sliding_window_logits(model, volume, patch, overlap=overlap)
+        probs = torch.softmax(logits, dim=1)[0].detach().cpu().numpy()
+        pred = probs.argmax(axis=0)
+        scores = region_scores(pred, target, compute_hd95=True, compute_pr=True)
+        scores["brier"] = brier_score_multiclass(probs, target)
+        scores["ece"] = expected_calibration_error(
+            probs.max(axis=0), (pred == target).astype(np.float64)
+        )
         scores["patient_id"] = patient_id
         rows.append(scores)
+        if timed is None:
+            patch_volume = volume[:, :, : patch[0], : patch[1], : patch[2]]
+            timed = time_inference(model, patch_volume, mc_samples=1, n_repeat=3)
+            gpu_mem = measure_gpu_memory(model, patch_volume, mc_samples=1, device=device)
+            timed["n_params"] = count_parameters(model)
 
     summary = {}
-    for key in ("dice_wt", "dice_tc", "dice_et", "hd95_wt", "hd95_tc", "hd95_et"):
-        summary[key] = _mean_std([float(row[key]) for row in rows if key in row])
+    metric_keys = (
+        "dice_wt",
+        "dice_tc",
+        "dice_et",
+        "hd95_wt",
+        "hd95_tc",
+        "hd95_et",
+        "precision_wt",
+        "recall_wt",
+        "precision_tc",
+        "recall_tc",
+        "precision_et",
+        "recall_et",
+        "brier",
+        "ece",
+    )
+    for key in metric_keys:
+        summary[key] = summarize_values([float(row[key]) for row in rows if key in row])
 
     out = run_dir / f"metrics_{args.split}.json"
     payload_out = {
@@ -103,6 +130,8 @@ def main() -> None:
         "n_patients": len(rows),
         "patients": rows,
         "summary": summary,
+        "cost": timed,
+        "gpu_memory": gpu_mem,
         "hd95_note": (
             "HD95 is the 95th percentile of bidirectional surface distances "
             "(see docs/metrics.md). NaN means a surface could not be formed. "

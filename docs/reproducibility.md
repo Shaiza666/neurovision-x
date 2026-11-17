@@ -53,3 +53,7 @@ Transformer variants (`unetr`, `swinunetr`) raise `NotImplementedError` until a 
 A4 reuses A0 weights. Reliability JSON, optional overlay PNGs, parameter counts, and wall-clock milliseconds are written next to the checkpoint. Smoke checkpoints are refused.
 
 The 3D U-Net implementation in `src/neurovisionx/models/unet3d.py` is unchanged. SE fusion is a wrapper (`fusion.py`). Attention U-Net is a separate class. Boundary classes and MC dropout are config flags.
+
+## Phase 5 evaluation reports
+
+`scripts/collect_results.py` scans `experiments/` and writes `docs/experimental_results.md` and `docs/experiment_summary.md`. It **does not train** and leaves missing A/B/C cells as `not measured`. Smoke folders are inventoried and excluded from comparison tables. Protocol: `docs/evaluation_protocol.md`. Config: `configs/evaluation.yaml` (seeds default `{2026}`).

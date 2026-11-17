@@ -54,6 +54,7 @@ def train_or_explain(
     resume: bool = False,
     ablation_id: str | None = None,
     config: dict[str, Any] | None = None,
+    seed: int | None = None,
 ) -> None:
     extra_metadata: dict[str, Any] = {}
     if ablation_id:
@@ -72,6 +73,12 @@ def train_or_explain(
             raise SystemExit("Do not combine --smoke with --ablation. Smoke is not BraTS.")
         if run_name == "debug":
             run_name = run.id
+    if seed is not None:
+        from copy import deepcopy
+
+        config = deepcopy(config) if config is not None else load_experiment_config()
+        config["training"]["seed"] = int(seed)
+        extra_metadata["seed"] = int(seed)
     if smoke:
         from neurovisionx.training.engine import run_smoke
 

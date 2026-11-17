@@ -27,18 +27,11 @@ from neurovisionx.evaluation.hard_cases import (
     uncertainty_error_report,
     voxel_error_mask,
 )
-from neurovisionx.evaluation.metrics import negative_log_likelihood
+from neurovisionx.evaluation.metrics import brier_score_multiclass, negative_log_likelihood
 from neurovisionx.evaluation.regions import nested_masks, region_scores
+from neurovisionx.evaluation.summarize import summarize_values
 from neurovisionx.utils.config import load_experiment_config
 from neurovisionx.utils.paths import project_root
-
-
-def _mean_std(values: list[float]) -> dict[str, float | None]:
-    finite = [v for v in values if v == v]
-    if not finite:
-        return {"mean": None, "std": None, "n": 0}
-    arr = np.asarray(finite, dtype=np.float64)
-    return {"mean": float(arr.mean()), "std": float(arr.std(ddof=0)), "n": int(arr.size)}
 
 
 def main() -> None:
@@ -67,7 +60,7 @@ def main() -> None:
 
     try:
         import torch
-        from neurovisionx.evaluation.cost import count_parameters, time_inference
+        from neurovisionx.evaluation.cost import count_parameters, measure_gpu_memory, time_inference
         from neurovisionx.evaluation.predict import infer_volume_mc, load_model_from_checkpoint
         from neurovisionx.uncertainty.calibration import calibration_summary
         from neurovisionx.uncertainty.mc_dropout import patient_uncertainty_score
@@ -129,7 +122,8 @@ def main() -> None:
             entropy = mc["entropy"].cpu()
             probs_np = mc["mean_probs"].cpu().numpy()
 
-        scores = region_scores(pred, target, compute_hd95=True)
+        scores = region_scores(pred, target, compute_hd95=True, compute_pr=True)
+        scores["brier"] = brier_score_multiclass(probs_np, target)
         wt = nested_masks(pred)["WT"] | nested_masks(target)["WT"]
         u_score = patient_uncertainty_score(entropy, torch.from_numpy(wt))
         scores["patient_id"] = patient_id
@@ -148,9 +142,13 @@ def main() -> None:
             timed = {
                 "t1": time_inference(model, patch_volume, mc_samples=1, n_repeat=3),
                 "t_mc": time_inference(model, patch_volume, mc_samples=max(samples, 1), n_repeat=1),
+                "gpu_memory_t1": measure_gpu_memory(model, patch_volume, mc_samples=1, device=device),
+                "gpu_memory_t_mc": measure_gpu_memory(
+                    model, patch_volume, mc_samples=max(samples, 1), device=device
+                ),
                 "n_params": count_parameters(model),
                 "timed_on": "one_patch",
-                "note": "Wall-clock on one patch, not a full-volume clinical latency claim.",
+                "note": "Wall-clock and CUDA peak on one patch, not a clinical latency claim.",
             }
         if args.write_figures and index == 0:
             try:
@@ -183,8 +181,19 @@ def main() -> None:
             pass
 
     summary = {}
-    for key in ("dice_wt", "dice_tc", "dice_et", "hd95_wt", "hd95_tc", "hd95_et", "uncertainty"):
-        summary[key] = _mean_std([float(row[key]) for row in rows if key in row])
+    for key in (
+        "dice_wt",
+        "dice_tc",
+        "dice_et",
+        "hd95_wt",
+        "hd95_tc",
+        "hd95_et",
+        "precision_et",
+        "recall_et",
+        "brier",
+        "uncertainty",
+    ):
+        summary[key] = summarize_values([float(row[key]) for row in rows if key in row])
 
     out = run_dir / f"reliability_{args.split}.json"
     payload_out = {
@@ -195,7 +204,7 @@ def main() -> None:
         "summary": summary,
         "calibration": {
             **{k: v for k, v in cal.items() if k != "reliability"},
-            "nll": _mean_std(nlls),
+            "nll": summarize_values(nlls),
         },
         "reliability_bins": cal.get("reliability"),
         "uncertainty_error": report,

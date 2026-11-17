@@ -42,3 +42,19 @@ Expected calibration error (Mehrtash et al., 2020) bins voxel confidence \(\max_
 Patient-level predictive entropy (MC dropout, Gal and Ghahramani, 2016; patient aggregation, Jungo et al., 2020) is correlated with Dice using Spearman \(\rho\). Detection of the worst ET Dice quartile uses AUPRC. Small/difficult ET is the **pre-registered** lowest quartile of ET voxel count (`src/neurovisionx/evaluation/hard_cases.py`). Do not re-define the stratum after seeing scores.
 
 These analyses run in `scripts/analyze_reliability.py` only after a real (non-smoke) checkpoint and official volumes exist.
+
+## Precision and recall
+
+For a binary region mask, precision = TP / (TP+FP) and recall = TP / (TP+FN). Empty vs empty scores 1; empty prediction vs non-empty target scores 0 (same convention as Dice). Implementation: `precision_recall` in `src/neurovisionx/evaluation/metrics.py`. Nested WT/TC/ET precision/recall are optional keys from `region_scores(..., compute_pr=True)`.
+
+## Brier score
+
+The multiclass Brier score is the mean squared error between the softmax vector and the one-hot label (Brier, 1950). It is a proper scoring rule used here as a calibration diagnostic, not a clinical score. Implementation: `brier_score_multiclass`.
+
+## Mean, SD, and 95% CI
+
+Scientific tables use the **sample** standard deviation (ddof=1) and a Student-t interval when \(n \ge 2\) (`src/neurovisionx/evaluation/summarize.py`). A single patient or seed has no CI. Missing JSON is reported as **not measured**, never as 0.
+
+## GPU memory
+
+Peak allocated megabytes come from `torch.cuda.max_memory_allocated` during one forward (`measure_gpu_memory`). If CUDA is unavailable the field is recorded as not measured. This is not `nvidia-smi` reserved memory and not a clinical hardware claim.

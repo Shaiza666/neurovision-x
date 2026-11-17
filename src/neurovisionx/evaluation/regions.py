@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from neurovisionx.evaluation.metrics import dice_coefficient, hd95
+from neurovisionx.evaluation.metrics import dice_coefficient, hd95, precision_recall
 
 ET_LEGACY = 4
 NCR, ED, ET = 1, 2, 3
@@ -43,8 +43,9 @@ def region_scores(
     target: np.ndarray,
     *,
     compute_hd95: bool = False,
+    compute_pr: bool = False,
 ) -> dict[str, float]:
-    """Dice (and optional HD95) for nested regions.
+    """Dice, optional HD95, and optional precision/recall for nested regions.
 
     Empty prediction vs empty target is Dice 1. Empty vs non-empty is Dice 0.
     HD95 is NaN when a surface cannot be formed. No placeholder scores.
@@ -57,4 +58,8 @@ def region_scores(
         scores[f"dice_{key}"] = dice_coefficient(pred_n[name], true_n[name])
         if compute_hd95:
             scores[f"hd95_{key}"] = hd95(pred_n[name], true_n[name])
+        if compute_pr:
+            precision, recall = precision_recall(pred_n[name], true_n[name])
+            scores[f"precision_{key}"] = precision
+            scores[f"recall_{key}"] = recall
     return scores

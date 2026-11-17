@@ -16,7 +16,7 @@ app/               notes; Streamlit detection UI remains at repo-root app.py
 docs/              literature review and research plan
 experiments/       run metadata (empty until a real training job)
 notebooks/
-scripts/           validate_dataset, prepare_splits, dataset_stats, dataset_qc, smoke_train, train, evaluate, infer, ablation_plan, analyze_reliability
+scripts/           validate_dataset, prepare_splits, dataset_stats, dataset_qc, smoke_train, train, evaluate, infer, ablation_plan, analyze_reliability, collect_results
 tests/
 ```
 
@@ -78,6 +78,16 @@ That command prints A0–A5 and **does not train**. Do not run expensive jobs un
 ```
 
 No Dice/HD95/ECE improvement is claimed until those jobs finish on real data.
+
+## Phase 5 scientific evaluation (recorded JSON only)
+
+Protocol: `docs/evaluation_protocol.md`. Comparison A = 3D U-Net (`A0_baseline`), B = Attention U-Net (`A2_attention`), C = proposed SE + ET boundary + MC dropout (`A5_combination`). Component ablations reuse A1/A3/A5 checkpoints. `collect_results.py` writes the results markdown from folders that actually exist:
+
+```powershell
+.\.venv\Scripts\python scripts\collect_results.py
+```
+
+That command does **not** train. Current `docs/experimental_results.md` reports **not measured** for official BraTS A/B/C tables until non-smoke `metrics_test.json` files exist.
 
 ## Detection UI (existing)
 

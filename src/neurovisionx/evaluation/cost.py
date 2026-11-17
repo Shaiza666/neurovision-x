@@ -80,3 +80,54 @@ def time_inference(
         "n_params": count_parameters(model),
         "note": "Wall-clock on the tensor that was passed. Not a clinical latency claim.",
     }
+
+
+@torch.no_grad()
+def measure_gpu_memory(
+    model: nn.Module,
+    volume: torch.Tensor,
+    *,
+    mc_samples: int = 1,
+    device: torch.device | None = None,
+) -> dict[str, Any]:
+    """Peak CUDA allocator bytes during one forward. CPU returns a measured skip.
+
+    This is `torch.cuda.max_memory_allocated`, not nvidia-smi reserved memory.
+    Not a clinical hardware requirement.
+    """
+    if device is None:
+        device = volume.device if volume.is_cuda else torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu"
+        )
+    payload: dict[str, Any] = {
+        "device": str(device),
+        "peak_allocated_mb": None,
+        "measured": False,
+        "mc_samples": int(mc_samples),
+        "note": "GPU memory not measured (CUDA unavailable or CPU tensor).",
+    }
+    if device.type != "cuda" or not torch.cuda.is_available():
+        return payload
+    model = model.to(device)
+    volume = volume.to(device)
+    if volume.ndim == 4:
+        volume = volume.unsqueeze(0)
+    torch.cuda.reset_peak_memory_stats(device)
+    torch.cuda.synchronize(device)
+    if mc_samples > 1:
+        from neurovisionx.uncertainty.mc_dropout import mc_dropout_predict
+
+        _ = mc_dropout_predict(model, volume, samples=mc_samples)
+    else:
+        model.eval()
+        _ = model(volume)
+    torch.cuda.synchronize(device)
+    peak = float(torch.cuda.max_memory_allocated(device) / (1024.0 ** 2))
+    payload.update(
+        {
+            "peak_allocated_mb": peak,
+            "measured": True,
+            "note": "Peak allocated MB from torch CUDA allocator during one forward.",
+        }
+    )
+    return payload

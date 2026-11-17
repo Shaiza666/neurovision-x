@@ -1,0 +1,58 @@
+# Phase 5 scientific evaluation. This file does not start training.
+# collect_results.py reads recorded JSON only and leaves missing cells as "not measured".
+
+disclaimer: "Research prototype. Not a clinically validated diagnostic tool."
+expensive_training_requires_approval: true
+protocol: docs/evaluation_protocol.md
+split: test
+ci_level: 0.95
+std_ddof: 1
+
+# Same patient-level split and preprocessing as configs/data.yaml / training.yaml.
+seeds: [2026]
+# Add 2027, 2028 only when compute is approved. Do not invent extra-seed folders.
+
+comparisons:
+  A:
+    label: 3D U-Net baseline
+    run_id: A0_baseline
+    isolates: baseline
+  B:
+    label: Attention U-Net
+    run_id: A2_attention
+    isolates: attention
+  C:
+    label: Proposed (SE + ET boundary + MC dropout)
+    run_id: A5_combination
+    isolates: combination
+
+# Ablations remove one proposed component from C. Extra training is avoided
+# by reusing A1/A3/A5 checkpoints (MC dropout is test-time).
+component_ablations:
+  - id: C_minus_se
+    run_id: C_minus_se
+    removes: SE fusion
+    train: false
+    checkpoint_from: A3_boundary_et
+    description: "A3 weights + MC T=10 (proposed without SE)"
+  - id: C_minus_boundary
+    run_id: C_minus_boundary
+    removes: ET boundary loss
+    train: false
+    checkpoint_from: A1_se_fusion
+    description: "A1 weights + MC T=10 (proposed without boundary)"
+  - id: C_minus_mc
+    run_id: C_minus_mc
+    removes: MC dropout
+    train: false
+    checkpoint_from: A5_combination
+    description: "A5 weights, T=1 (proposed without MC)"
+
+metrics:
+  overlap: [dice_wt, dice_tc, dice_et]
+  surface: [hd95_wt, hd95_tc, hd95_et]
+  detection: [precision_wt, recall_wt, precision_tc, recall_tc, precision_et, recall_et]
+  calibration: [ece, nll, brier]
+  small_regions: [et_size_stratum_dice]
+  uncertainty: [spearman, auprc_worst_et_dice_quartile]
+  cost: [mean_ms, peak_allocated_mb, n_params]

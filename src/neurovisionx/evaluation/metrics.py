@@ -100,3 +100,48 @@ def negative_log_likelihood(
     clipped = np.clip(probs, eps, 1.0)
     gathered = np.take_along_axis(clipped, target[None, ...], axis=0)[0]
     return float(-np.log(gathered).mean())
+
+
+def precision_recall(pred: np.ndarray, target: np.ndarray) -> tuple[float, float]:
+    """Binary precision and recall. Empty vs empty scores 1; empty vs non-empty scores 0."""
+    pred_b = np.asarray(pred).astype(bool)
+    target_b = np.asarray(target).astype(bool)
+    tp = np.logical_and(pred_b, target_b).sum()
+    fp = np.logical_and(pred_b, np.logical_not(target_b)).sum()
+    fn = np.logical_and(np.logical_not(pred_b), target_b).sum()
+    if tp + fp == 0:
+        precision = 1.0 if fn == 0 else 0.0
+    else:
+        precision = float(tp / (tp + fp))
+    if tp + fn == 0:
+        recall = 1.0 if fp == 0 else 0.0
+    else:
+        recall = float(tp / (tp + fn))
+    return precision, recall
+
+
+def brier_score_multiclass(probs: np.ndarray, target: np.ndarray) -> float:
+    """Mean squared error between softmax and one-hot labels (Brier, 1950).
+
+    ``probs`` is (C, ...) matching ``target``. This is a calibration diagnostic,
+    not a clinical score.
+    """
+    probs = np.asarray(probs, dtype=np.float64)
+    target = np.asarray(target, dtype=np.int64)
+    if probs.ndim != target.ndim + 1:
+        raise ValueError("probs must have a leading class axis over target's shape")
+    if target.size == 0:
+        return float("nan")
+    n_classes = int(probs.shape[0])
+    one_hot = np.eye(n_classes, dtype=np.float64)[target]
+    moved = np.moveaxis(probs, 0, -1)
+    return float(np.mean(np.sum((moved - one_hot) ** 2, axis=-1)))
+
+
+def brier_score_binary(prob: np.ndarray, target: np.ndarray) -> float:
+    """Binary Brier score for a region probability map vs a boolean mask."""
+    p = np.asarray(prob, dtype=np.float64).ravel()
+    y = np.asarray(target, dtype=np.float64).ravel()
+    if p.size == 0:
+        return float("nan")
+    return float(np.mean((p - y) ** 2))

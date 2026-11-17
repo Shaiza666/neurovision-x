@@ -26,12 +26,19 @@ def main() -> None:
         default=None,
         help="Apply a configs/ablations.yaml arm. Does not skip the BraTS data gate. Do not run until the protocol is approved.",
     )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help="Override training.yaml seed for a multi-seed job. Does not skip the data gate.",
+    )
     args = parser.parse_args()
     train_or_explain(
         run_name=args.run_name,
         smoke=args.smoke,
         resume=args.resume,
         ablation_id=args.ablation,
+        seed=args.seed,
     )
 
 
