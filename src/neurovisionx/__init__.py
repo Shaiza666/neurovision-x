@@ -4,4 +4,4 @@ This software is a research prototype. It is not a clinically validated
 diagnostic tool and must not be used for clinical decision-making.
 """
 
-__version__ = "0.8.0"
+__version__ = "0.9.0"

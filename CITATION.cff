@@ -1,0 +1,21 @@
+cff-version: 1.2.0
+title: "NeuroVision-X: a reproducible 3D glioma MRI segmentation research stack"
+message: Cite this GitHub repository as software. It is not a peer-reviewed article.
+type: software
+authors:
+  - name: "NeuroVision-X contributors"
+url: "https://github.com/Shaiza666/neurovision-x"
+repository-code: "https://github.com/Shaiza666/neurovision-x"
+license: MIT
+version: "0.9.0"
+date-released: "2026-11-17"
+abstract: >-
+  Experimental research prototype for 3D glioma segmentation on multimodal MRI.
+  Not a clinically validated diagnostic system. Official BraTS training has not
+  been run in this repository; challenge Dice/HD95/ECE are not measured.
+keywords:
+  - medical image segmentation
+  - glioma
+  - MRI
+  - uncertainty
+  - reproducibility

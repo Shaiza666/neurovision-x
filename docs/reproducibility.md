@@ -61,3 +61,11 @@ The 3D U-Net implementation in `src/neurovisionx/models/unet3d.py` is unchanged.
 ## Phase 6 figures
 
 `scripts/explain.py` writes overlays next to a checkpoint only for a loaded volume. Each panel includes `explain.json` (CAM layer, class index, score mode). Smoke checkpoints are refused unless `--allow-smoke`. Limitations of Grad-CAM and entropy maps: `docs/explainability.md`. Do not treat PNGs as clinical explanations.
+
+## Phase 7 demonstration
+
+`app_research.py` loads an on-disk `.pt` and runs that model. Missing T1/T1ce/T2/FLAIR is an error. Smoke weights are labelled synthetic. Notes: `docs/demo.md`. Walkthrough: `docs/demo_script.md`.
+
+## Phase 8 documentation
+
+Portfolio report: `docs/research_report.md`. Installation: `docs/installation.md`. IEEE references: `docs/references.md`. Cite the GitHub repository via `CITATION.cff`, not a fictional paper.

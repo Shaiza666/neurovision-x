@@ -126,4 +126,4 @@ Menze et al. (*IEEE TMI*, 2015) define BraTS and document **human inter-rater Di
 
 TransUNet and Attention U-Net are included because they are the canonical sources of those methods; they are **not** 3D glioma papers. That distinction is kept in the gap analysis.
 
-See `references.bib` for BibTeX.
+See `references.bib` / `references.md` for BibTeX and IEEE-style entries. Phase 4–6 additionally cite Hu et al. (SE, CVPR 2018), Selvaraju et al. (Grad-CAM, ICCV 2017), Zeiler and Fergus (ECCV 2014), Adebayo et al. (NeurIPS 2018), and Brier (1950); those identifiers are in the same bibliography. They are **not** 3D glioma method papers except as used for fusion, attribution, and scoring rules.

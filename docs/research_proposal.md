@@ -3,7 +3,7 @@
 **Title:** Reliable 3D glioma segmentation on multimodal MRI: a controlled study of boundary-aware training and uncertainty  
 **Project:** NeuroVision-X  
 **Programme framing:** Erasmus Mundus Master’s portfolio (reproducible methods study, not a clinical device)  
-**Phase:** 1 — plan only. Implementation starts after approval.
+**Phase:** 1 — plan only (historical). Software Phases 2–7 were implemented later; **one real BraTS training run has still not been completed.** Do not read this file as evidence that Stage 3 finished.
 
 This software is not a clinically validated diagnostic tool. No segmentation model has been trained in this repository for BraTS.
 
