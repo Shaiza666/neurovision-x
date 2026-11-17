@@ -57,3 +57,7 @@ The 3D U-Net implementation in `src/neurovisionx/models/unet3d.py` is unchanged.
 ## Phase 5 evaluation reports
 
 `scripts/collect_results.py` scans `experiments/` and writes `docs/experimental_results.md` and `docs/experiment_summary.md`. It **does not train** and leaves missing A/B/C cells as `not measured`. Smoke folders are inventoried and excluded from comparison tables. Protocol: `docs/evaluation_protocol.md`. Config: `configs/evaluation.yaml` (seeds default `{2026}`).
+
+## Phase 6 figures
+
+`scripts/explain.py` writes overlays next to a checkpoint only for a loaded volume. Each panel includes `explain.json` (CAM layer, class index, score mode). Smoke checkpoints are refused unless `--allow-smoke`. Limitations of Grad-CAM and entropy maps: `docs/explainability.md`. Do not treat PNGs as clinical explanations.

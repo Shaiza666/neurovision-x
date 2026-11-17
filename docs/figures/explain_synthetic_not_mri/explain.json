@@ -1,0 +1,16 @@
+{
+  "class_index": 3,
+  "layer_name": "decoders.1.block.4",
+  "score": 0.23746520280838013,
+  "score_mode": "predicted_region_mean",
+  "has_ground_truth": true,
+  "has_entropy": true,
+  "entropy_kind": "softmax_entropy_T1_same_forward",
+  "files": {
+    "overlay": "C:\\Users\\user\\NeuroVision-X\\docs\\figures\\explain_synthetic_not_mri\\orthogonal_overlay.png",
+    "attribution": "C:\\Users\\user\\NeuroVision-X\\docs\\figures\\explain_synthetic_not_mri\\orthogonal_attribution.png",
+    "volume3d": "C:\\Users\\user\\NeuroVision-X\\docs\\figures\\explain_synthetic_not_mri\\prediction_3d_preview.png"
+  },
+  "disclaimer": "Research visualization. Not a clinical explanation. Grad-CAM does not prove model reasoning or correctness.",
+  "limitations_doc": "docs/explainability.md"
+}

@@ -1,0 +1,21 @@
+# Phase 6 explainability. Figures are research QC, not clinical explanations.
+
+disclaimer: "Research visualization. Not a clinical explanation. Heatmaps do not prove model reasoning or correctness."
+limitations: docs/explainability.md
+
+cam:
+  class_index: 3  # ET
+  layer_name: null  # last spatial Conv3d
+  score_mode: predicted_region_mean
+
+views: [axial, coronal, sagittal]
+mri_channel: flair  # channel 3 after T1, T1ce, T2, FLAIR stack
+
+uncertainty:
+  default: softmax_entropy_T1  # from the same logits as Grad-CAM
+  mc_samples: 0  # set >1 only when compute is approved
+
+output:
+  dpi: 200
+  include_3d_preview: true
+  include_input_gradient: false
