@@ -12,7 +12,7 @@ Phase 1 literature and hypotheses: `docs/`. Reproducibility notes: `docs/reprodu
 configs/           experiment YAML (data, model, training)
 data/              raw / processed / patient splits (no NIfTI in git)
 src/neurovisionx/  3D segmentation package
-app/               notes; Streamlit detection UI remains at repo-root app.py
+app/               notes; YOLO UI is app.py; 3D research dashboard is app_research.py
 docs/              literature review and research plan
 experiments/       run metadata (empty until a real training job)
 notebooks/
@@ -99,6 +99,16 @@ Limitations: `docs/explainability.md`. 3D Grad-CAM, orthogonal overlays (axial/c
 ```
 
 `--synthetic` uses random tensors (not MRI). The patient path exits until licensed BraTS volumes and a non-smoke checkpoint exist.
+
+## Phase 7 research demonstration
+
+Experimental dashboard (not a clinical system). Notes: `docs/demo.md`.
+
+```powershell
+.\.venv\Scripts\python -m streamlit run app_research.py
+```
+
+Upload co-registered T1/T1ce/T2/FLAIR NIfTI or, if only the smoke checkpoint exists, run the labelled **interface test** (random tensor + real smoke weights). The UI will not invent logits.
 
 ## Detection UI (existing)
 
