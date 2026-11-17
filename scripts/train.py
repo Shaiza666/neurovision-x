@@ -1,4 +1,4 @@
-"""Start training only when official BraTS volumes exist."""
+"""Train on official BraTS volumes, or run a labeled synthetic smoke test."""
 
 from __future__ import annotations
 
@@ -13,10 +13,16 @@ from neurovisionx.training.loop import train_or_explain
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Train 3D U-Net on official BraTS folders.")
+    parser = argparse.ArgumentParser(description="Train 3D segmentation (BraTS or --smoke).")
     parser.add_argument("--run-name", default="debug")
+    parser.add_argument(
+        "--smoke",
+        action="store_true",
+        help="Synthetic tensor smoke test. Not BraTS. Not research results.",
+    )
+    parser.add_argument("--resume", action="store_true", help="Resume from experiments/<run>/latest.pt")
     args = parser.parse_args()
-    train_or_explain(run_name=args.run_name)
+    train_or_explain(run_name=args.run_name, smoke=args.smoke, resume=args.resume)
 
 
 if __name__ == "__main__":

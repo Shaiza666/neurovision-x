@@ -1,7 +1,7 @@
 """Training entry points.
 
-Training is reported complete only after a real job on official data. This
-module refuses to invent metrics when BraTS volumes are missing.
+Training is reported complete only after a real job on official data, except
+the explicit ``--smoke`` path which uses random tensors and is labeled as such.
 """
 
 from __future__ import annotations
@@ -40,13 +40,21 @@ def prepare_run(run_name: str = "debug") -> TrainRequest:
     return TrainRequest(data_root=raw, run_dir=run_dir, config=config)
 
 
-def train_or_explain(run_name: str = "debug") -> None:
-    """Fail loudly if data is missing; train only on official volumes."""
+def train_or_explain(run_name: str = "debug", *, smoke: bool = False, resume: bool = False) -> None:
+    if smoke:
+        from neurovisionx.training.engine import run_smoke
+
+        checkpoint = run_smoke(run_name)
+        print(
+            f"SMOKE TEST finished (synthetic tensors, not BraTS, not research results). "
+            f"Checkpoint: {checkpoint}"
+        )
+        return
     try:
         request = prepare_run(run_name)
     except MissingBraTSDataError as exc:
         raise SystemExit(str(exc)) from exc
     from neurovisionx.training.engine import run_training
 
-    checkpoint = run_training(request)
-    raise SystemExit(f"Training finished. Checkpoint: {checkpoint}")
+    checkpoint = run_training(request, resume=resume)
+    print(f"Training finished. Checkpoint: {checkpoint}")

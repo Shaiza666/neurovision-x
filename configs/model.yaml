@@ -1,4 +1,5 @@
-# Architecture. Baseline is a 3D U-Net. Transformer variants are optional (H3).
+# Architecture. Baseline is a 3D U-Net. Attention U-Net is the Phase 3 comparison.
+# Transformer variants remain optional (H3).
 
 name: unet3d
 framework: pytorch
@@ -18,9 +19,10 @@ output_layout: classes  # ncr, ed, et
 variants:
   unet3d:
     enabled: true
+    note: "Cicek et al., MICCAI 2016. Default baseline."
   attention_unet3d:
-    enabled: false
-    note: Attention gates are optional; not enabled until H1 baseline exists.
+    enabled: true
+    note: "Oktay et al., MIDL 2018 attention gates. Set name to attention_unet3d to train it."
   unetr:
     enabled: false
-    note: Deferred unless GPU memory allows a matched H3 comparison.
+    note: "Deferred unless GPU memory allows a matched H3 comparison."

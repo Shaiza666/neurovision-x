@@ -3,6 +3,9 @@
 seed: 2026
 deterministic: true
 device: auto  # cuda if available else cpu
+grad_clip: 1.0
+validate_every: 1
+compute_hd95_on_val: false  # expensive; full-volume HD95 is in scripts/evaluate.py
 
 optim:
   name: adamw
@@ -15,6 +18,7 @@ schedule:
   patch_size: [96, 96, 96]
   sw_batch_size: 2
   amp: true
+  infer_overlap: 0.5
 
 loss:
   dice_weight: 1.0
@@ -22,6 +26,8 @@ loss:
   boundary_weight: 0.0  # set >0 to test H1
   include_background: false
   smooth: 1.0e-5
+  class_weight_mode: inverse_freq  # none | inverse_freq | fixed
+  class_weights: null  # used when class_weight_mode is fixed
 
 uncertainty:
   method: mc_dropout  # mc_dropout | tta | none
@@ -30,10 +36,18 @@ uncertainty:
 
 logging:
   experiments_dir: experiments
-  save_every_epoch: 5
+  save_every_epoch: 1
   require_real_data: true
 
 early_stopping:
   metric: dice_et
   mode: max
   patience: 15
+
+smoke:
+  epochs: 2
+  n_train: 4
+  n_val: 2
+  batch_size: 1
+  patch_size: [16, 16, 16]
+  features: [8, 16]

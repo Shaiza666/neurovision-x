@@ -16,7 +16,7 @@ app/               notes; Streamlit detection UI remains at repo-root app.py
 docs/              literature review and research plan
 experiments/       run metadata (empty until a real training job)
 notebooks/
-scripts/           validate_dataset, prepare_splits, dataset_stats, dataset_qc, train, evaluate
+scripts/           validate_dataset, prepare_splits, dataset_stats, dataset_qc, smoke_train, train, evaluate, infer
 tests/
 ```
 
@@ -43,6 +43,23 @@ Place BraTS volumes only after accepting the challenge license. The Phase 2 load
 ```
 
 No official BraTS archive is currently in this workspace. Those scripts exit with `MissingBraTSDataError` until you unpack a licensed release under `data/raw/brats/`.
+
+## Phase 3 baseline (PyTorch)
+
+3D U-Net (Çiçek 2016) is the default. Attention U-Net (Oktay 2018) is the comparison (`name: attention_unet3d` in `configs/model.yaml`). Dice+CE uses inverse-frequency CE weights for class imbalance. Mixed precision, gradient clipping, `best.pt` / `latest.pt`, validation Dice for WT/TC/ET, and learning curves are in the training engine. HD95 is documented in `docs/metrics.md` and computed on full volumes at evaluation time.
+
+```powershell
+.\.venv\Scripts\python -m pip install -e ".[research]"
+.\.venv\Scripts\python scripts\smoke_train.py
+```
+
+`smoke_train.py` runs **two epochs on random tensors**. Those losses and Dice values are **not research results**. After a licensed BraTS tree is in place:
+
+```powershell
+.\.venv\Scripts\python scripts\train.py --run-name unet3d
+.\.venv\Scripts\python scripts\train.py --run-name unet3d --resume
+.\.venv\Scripts\python scripts\evaluate.py --run-name unet3d
+```
 
 ## Detection UI (existing)
 

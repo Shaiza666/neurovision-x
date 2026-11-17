@@ -29,6 +29,9 @@ class MetricTests(unittest.TestCase):
         blob[2:4, 2:4, 2:4] = 1
         try:
             self.assertTrue(np.isnan(hd95(empty, blob)))
+            identical = hd95(blob, blob)
+            self.assertFalse(np.isnan(identical))
+            self.assertLess(identical, 1.0)
         except ImportError:
             self.skipTest("scipy not installed")
 
@@ -56,6 +59,19 @@ class TorchLossTests(unittest.TestCase):
         self.assertLess(float(loss), 0.05)
         combined = CombinedSegLoss(dice_weight=1.0, ce_weight=0.0, boundary_weight=0.0)
         self.assertGreater(float(combined(logits, target)), -1e-6)
+
+    def test_inverse_frequency_upweights_rare_class(self):
+        try:
+            import torch
+        except ImportError:
+            self.skipTest("torch not installed")
+        from neurovisionx.losses.segmentation import inverse_frequency_weights
+
+        target = torch.zeros(1, 8, 8, 8, dtype=torch.long)
+        target[0, 0, 0, 0] = 3
+        weights = inverse_frequency_weights(target, 4)
+        self.assertEqual(tuple(weights.shape), (4,))
+        self.assertGreater(float(weights[3]), float(weights[0]))
 
 
 if __name__ == "__main__":

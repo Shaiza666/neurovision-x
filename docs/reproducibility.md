@@ -8,8 +8,11 @@ Each training run under `experiments/<run-name>/` should contain:
 
 - `metadata.json` — package version, Python, platform, CUDA flag, full YAML config
 - `patients.json` — patient-level train/val/test ids (no overlapping patients)
-- `history.json` — per-epoch losses from the job that actually ran
-- `best.pt` — weights from the lowest validation loss in that job
+- `history.json` — per-epoch losses and nested val Dice from the job that actually ran
+- `learning_curves.png` — research plot, not a clinical chart
+- `best.pt` / `latest.pt` — best monitored metric and last epoch (optimizer included for `--resume`)
+
+A run with `metadata.json` `"status": "smoke_synthetic_not_research"` used random tensors. Do not cite it as BraTS performance.
 
 If those files are missing, training has not been completed. Do not copy metrics from papers into these files.
 
