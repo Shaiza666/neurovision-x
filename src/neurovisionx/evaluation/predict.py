@@ -47,3 +47,37 @@ def infer_volume(
         volume = volume.unsqueeze(0)
     logits = sliding_window_logits(model, volume, patch_size, overlap=overlap)
     return logits.argmax(dim=1)[0]
+
+
+@torch.no_grad()
+def infer_volume_mc(
+    model: nn.Module,
+    volume: torch.Tensor,
+    patch_size: tuple[int, int, int],
+    overlap: float = 0.5,
+    samples: int = 10,
+) -> dict[str, torch.Tensor]:
+    """MC dropout mean softmax and entropy on a full volume.
+
+    Uses stochastic sliding windows. Expensive on real BraTS volumes; do not
+    run until the Phase 4 protocol is approved.
+    """
+    if volume.ndim == 4:
+        volume = volume.unsqueeze(0)
+    stacked = []
+    for _ in range(max(int(samples), 1)):
+        logits = sliding_window_logits(
+            model, volume, patch_size, overlap=overlap, stochastic=True
+        )
+        stacked.append(torch.softmax(logits, dim=1)[0])
+    stack = torch.stack(stacked, dim=0)
+    mean_probs = stack.mean(dim=0)
+    from neurovisionx.uncertainty.mc_dropout import predictive_entropy
+
+    entropy = predictive_entropy(mean_probs)
+    model.eval()
+    return {
+        "mean_probs": mean_probs,
+        "entropy": entropy,
+        "prediction": mean_probs.argmax(dim=0),
+    }

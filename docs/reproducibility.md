@@ -41,3 +41,15 @@ Obtain data from the challenge organizers, accept their license, and do not comm
 ```
 
 Transformer variants (`unetr`, `swinunetr`) raise `NotImplementedError` until a matched H3 comparison is approved.
+
+## Phase 4 ablations
+
+`configs/ablations.yaml` lists A0–A5. `scripts/ablation_plan.py` prints the table and **does not train**. After protocol approval and official data:
+
+- `scripts/train.py --ablation A0_baseline --run-name A0_baseline`
+- `scripts/evaluate.py --run-name A0_baseline`
+- `scripts/analyze_reliability.py --run-name A0_baseline --samples 10`
+
+A4 reuses A0 weights. Reliability JSON, optional overlay PNGs, parameter counts, and wall-clock milliseconds are written next to the checkpoint. Smoke checkpoints are refused.
+
+The 3D U-Net implementation in `src/neurovisionx/models/unet3d.py` is unchanged. SE fusion is a wrapper (`fusion.py`). Attention U-Net is a separate class. Boundary classes and MC dropout are config flags.

@@ -32,3 +32,13 @@ Units are **voxels**. After BraTS-style 1 mm isotropic resampling, one voxel ≈
 HD95 is optional during training (`compute_hd95_on_val`, default false) because distance transforms on every patch slow the loop. Full-volume HD95 is computed in `scripts/evaluate.py` on real data after a checkpoint exists.
 
 Synthetic smoke tests may call the same function on random cubes to check that the code runs. Those numbers are **not** research results.
+
+## Calibration (ECE, NLL)
+
+Expected calibration error (Mehrtash et al., 2020) bins voxel confidence \(\max_c p_c\) against correctness. Negative log-likelihood is the mean \(-\log p_{y}\) of the same softmax. Both are research diagnostics, not clinical confidence. Implementation: `expected_calibration_error` and `negative_log_likelihood` in `src/neurovisionx/evaluation/metrics.py`. Reliability tables live in `src/neurovisionx/uncertainty/calibration.py`.
+
+## Uncertainty–error and small ET
+
+Patient-level predictive entropy (MC dropout, Gal and Ghahramani, 2016; patient aggregation, Jungo et al., 2020) is correlated with Dice using Spearman \(\rho\). Detection of the worst ET Dice quartile uses AUPRC. Small/difficult ET is the **pre-registered** lowest quartile of ET voxel count (`src/neurovisionx/evaluation/hard_cases.py`). Do not re-define the stratum after seeing scores.
+
+These analyses run in `scripts/analyze_reliability.py` only after a real (non-smoke) checkpoint and official volumes exist.

@@ -12,10 +12,11 @@ from typing import Any
 import torch.nn as nn
 
 from neurovisionx.models.attention_unet3d import AttentionUNet3D
+from neurovisionx.models.fusion import maybe_wrap_fusion
 from neurovisionx.models.unet3d import UNet3D
 
 
-def build_model(model_cfg: dict[str, Any]) -> nn.Module:
+def _backbone(model_cfg: dict[str, Any]) -> nn.Module:
     name = str(model_cfg.get("name", "unet3d")).lower().replace("-", "_")
     in_ch = int(model_cfg.get("in_channels", 4))
     out_ch = int(model_cfg.get("out_channels", 4))
@@ -75,4 +76,18 @@ def build_model(model_cfg: dict[str, Any]) -> nn.Module:
         out_channels=out_ch,
         features=tuple(features),
         dropout=dropout,
+    )
+
+
+def build_model(model_cfg: dict[str, Any]) -> nn.Module:
+    """Build the configured backbone, then optionally wrap an SE fusion stem.
+
+    ``fusion: early`` (default) returns the Phase 3 model unchanged.
+    """
+    backbone = _backbone(model_cfg)
+    return maybe_wrap_fusion(
+        backbone,
+        model_cfg.get("fusion", "early"),
+        in_channels=int(model_cfg.get("in_channels", 4)),
+        reduction=int(model_cfg.get("fusion_reduction", 2)),
     )

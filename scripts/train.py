@@ -21,8 +21,18 @@ def main() -> None:
         help="Synthetic tensor smoke test. Not BraTS. Not research results.",
     )
     parser.add_argument("--resume", action="store_true", help="Resume from experiments/<run>/latest.pt")
+    parser.add_argument(
+        "--ablation",
+        default=None,
+        help="Apply a configs/ablations.yaml arm. Does not skip the BraTS data gate. Do not run until the protocol is approved.",
+    )
     args = parser.parse_args()
-    train_or_explain(run_name=args.run_name, smoke=args.smoke, resume=args.resume)
+    train_or_explain(
+        run_name=args.run_name,
+        smoke=args.smoke,
+        resume=args.resume,
+        ablation_id=args.ablation,
+    )
 
 
 if __name__ == "__main__":

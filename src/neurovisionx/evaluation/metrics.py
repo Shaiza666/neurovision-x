@@ -79,3 +79,24 @@ def expected_calibration_error(
         conf = confidence[inside].mean()
         ece += (inside.mean()) * abs(acc - conf)
     return float(ece)
+
+
+def negative_log_likelihood(
+    probs: np.ndarray,
+    target: np.ndarray,
+    eps: float = 1e-8,
+) -> float:
+    """Mean NLL of integer labels under a softmax distribution.
+
+    ``probs`` is (C, ...) matching ``target`` spatial shape. Returns NaN if
+    empty. This is a calibration diagnostic, not a clinical score.
+    """
+    probs = np.asarray(probs, dtype=np.float64)
+    target = np.asarray(target, dtype=np.int64)
+    if probs.ndim != target.ndim + 1:
+        raise ValueError("probs must have a leading class axis over target's shape")
+    if probs.size == 0:
+        return float("nan")
+    clipped = np.clip(probs, eps, 1.0)
+    gathered = np.take_along_axis(clipped, target[None, ...], axis=0)[0]
+    return float(-np.log(gathered).mean())

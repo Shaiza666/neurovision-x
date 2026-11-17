@@ -16,10 +16,14 @@ activation: PReLU
 # Nested BraTS regions are derived from class logits in evaluation, not extra heads.
 output_layout: classes  # ncr, ed, et
 
+# early = channel concatenation (baseline). se = optional Hu 2018 stem in front of the same backbone.
+fusion: early
+fusion_reduction: 2
+
 variants:
   unet3d:
     enabled: true
-    note: "Cicek et al., MICCAI 2016. Default baseline."
+    note: "Cicek et al., MICCAI 2016. Default baseline. Do not edit unet3d.py for fusion; use fusion: se."
   attention_unet3d:
     enabled: true
     note: "Oktay et al., MIDL 2018 attention gates. Set name to attention_unet3d to train it."

@@ -16,7 +16,7 @@ app/               notes; Streamlit detection UI remains at repo-root app.py
 docs/              literature review and research plan
 experiments/       run metadata (empty until a real training job)
 notebooks/
-scripts/           validate_dataset, prepare_splits, dataset_stats, dataset_qc, smoke_train, train, evaluate, infer
+scripts/           validate_dataset, prepare_splits, dataset_stats, dataset_qc, smoke_train, train, evaluate, infer, ablation_plan, analyze_reliability
 tests/
 ```
 
@@ -60,6 +60,24 @@ No official BraTS archive is currently in this workspace. Those scripts exit wit
 .\.venv\Scripts\python scripts\train.py --run-name unet3d --resume
 .\.venv\Scripts\python scripts\evaluate.py --run-name unet3d
 ```
+
+## Phase 4 proposed method (code only — no BraTS training yet)
+
+Formulation: `docs/proposed_method.md`. Protocol (awaiting approval): `docs/experimental_protocol.md`. Components are **established** (SE fusion, attention gates, Kervadec boundary loss, MC dropout). They are independent config flags. The Phase 3 3D U-Net file is unchanged. Default `fusion: early` and `boundary_weight: 0.0` keep the baseline.
+
+```powershell
+.\.venv\Scripts\python scripts\ablation_plan.py
+```
+
+That command prints A0–A5 and **does not train**. Do not run expensive jobs until the protocol is approved and official BraTS volumes are present. After approval:
+
+```powershell
+.\.venv\Scripts\python scripts\train.py --ablation A0_baseline --run-name A0_baseline
+.\.venv\Scripts\python scripts\evaluate.py --run-name A0_baseline
+.\.venv\Scripts\python scripts\analyze_reliability.py --run-name A0_baseline --samples 10
+```
+
+No Dice/HD95/ECE improvement is claimed until those jobs finish on real data.
 
 ## Detection UI (existing)
 

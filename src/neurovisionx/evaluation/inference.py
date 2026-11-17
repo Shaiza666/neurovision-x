@@ -16,11 +16,21 @@ def sliding_window_logits(
     volume: torch.Tensor,
     patch_size: tuple[int, int, int],
     overlap: float = 0.5,
+    *,
+    stochastic: bool = False,
 ) -> torch.Tensor:
-    """``volume`` is (1, C, D, H, W). Returns logits of the same spatial size."""
+    """``volume`` is (1, C, D, H, W). Returns logits of the same spatial size.
+
+    ``stochastic=True`` leaves dropout active after ``eval()`` for MC dropout
+    (Gal and Ghahramani, 2016). Default False is the Phase 3 deterministic path.
+    """
     if volume.ndim != 5 or volume.shape[0] != 1:
         raise ValueError("volume must be (1, C, D, H, W)")
     model.eval()
+    if stochastic:
+        from neurovisionx.uncertainty.mc_dropout import enable_mc_dropout
+
+        enable_mc_dropout(model)
     _, _, depth, height, width = volume.shape
     pz, py, px = patch_size
     step_z = max(int(pz * (1.0 - overlap)), 1)

@@ -12,7 +12,9 @@ class ConfigTests(unittest.TestCase):
         cfg = load_experiment_config()
         self.assertEqual(cfg["data"]["splits"]["strategy"], "patient_level")
         self.assertEqual(cfg["model"]["name"], "unet3d")
+        self.assertEqual(cfg["model"].get("fusion", "early"), "early")
         self.assertEqual(cfg["training"]["seed"], 2026)
+        self.assertEqual(cfg["training"]["loss"]["boundary_weight"], 0.0)
         self.assertTrue(cfg["training"]["logging"]["require_real_data"])
         ratios = cfg["data"]["splits"]
         total = ratios["train_ratio"] + ratios["val_ratio"] + ratios["test_ratio"]

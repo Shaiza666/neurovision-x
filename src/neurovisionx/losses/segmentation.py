@@ -49,15 +49,27 @@ def dice_loss(
     return 1.0 - dice[present].mean()
 
 
-def boundary_loss(probs: torch.Tensor, distance_map: torch.Tensor) -> torch.Tensor:
+def boundary_loss(
+    probs: torch.Tensor,
+    distance_map: torch.Tensor,
+    classes: list[int] | tuple[int, ...] | None = None,
+) -> torch.Tensor:
     """Kervadec-style regional integral of probabilities times SDF.
 
     ``probs`` and ``distance_map`` are (N, C, D, H, W). Background channel 0
-    is ignored.
+    is ignored unless it is the only requested class. ``classes=None`` uses
+    every foreground channel (Phase 3 behaviour). Pass ``[3]`` to restrict
+    the term to ET for hypothesis H1.
     """
     if probs.shape != distance_map.shape:
         raise ValueError("probs and distance_map must share shape")
-    return (probs[:, 1:] * distance_map[:, 1:]).mean()
+    if classes is None:
+        channels = list(range(1, probs.shape[1]))
+    else:
+        channels = [int(c) for c in classes if int(c) != 0]
+    if not channels:
+        return probs.sum() * 0.0
+    return (probs[:, channels] * distance_map[:, channels]).mean()
 
 
 def inverse_frequency_weights(target: torch.Tensor, n_classes: int) -> torch.Tensor:
@@ -83,6 +95,7 @@ class CombinedSegLoss(nn.Module):
         include_background: bool = False,
         class_weight_mode: str = "none",
         class_weights: list[float] | tuple[float, ...] | None = None,
+        boundary_classes: list[int] | tuple[int, ...] | None = None,
     ) -> None:
         super().__init__()
         self.dice_weight = dice_weight
@@ -91,6 +104,7 @@ class CombinedSegLoss(nn.Module):
         self.smooth = smooth
         self.include_background = include_background
         self.class_weight_mode = str(class_weight_mode).lower()
+        self.boundary_classes = None if boundary_classes is None else tuple(int(c) for c in boundary_classes)
         if class_weights is not None:
             self.register_buffer("fixed_class_weights", torch.tensor(class_weights, dtype=torch.float32))
         else:
@@ -127,5 +141,7 @@ class CombinedSegLoss(nn.Module):
             if distance_map is None:
                 raise ValueError("boundary_weight > 0 requires a distance_map")
             probs = torch.softmax(logits, dim=1)
-            loss = loss + self.boundary_weight * boundary_loss(probs, distance_map)
+            loss = loss + self.boundary_weight * boundary_loss(
+                probs, distance_map, classes=self.boundary_classes
+            )
         return loss

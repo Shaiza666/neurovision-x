@@ -73,6 +73,21 @@ class TorchLossTests(unittest.TestCase):
         self.assertEqual(tuple(weights.shape), (4,))
         self.assertGreater(float(weights[3]), float(weights[0]))
 
+    def test_default_combined_loss_ignores_distance_map(self):
+        try:
+            import torch
+        except ImportError:
+            self.skipTest("torch not installed")
+        from neurovisionx.losses.segmentation import CombinedSegLoss
+
+        logits = torch.zeros(1, 4, 4, 4, 4)
+        logits[:, 0] = 4.0
+        target = torch.zeros(1, 4, 4, 4, dtype=torch.long)
+        criterion = CombinedSegLoss(boundary_weight=0.0)
+        self.assertIsNone(criterion.boundary_classes)
+        loss = criterion(logits, target)
+        self.assertTrue(torch.isfinite(loss))
+
 
 if __name__ == "__main__":
     unittest.main()

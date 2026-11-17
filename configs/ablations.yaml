@@ -1,0 +1,98 @@
+# Phase 4 ablation plan. This file does not start training.
+# Approve docs/experimental_protocol.md before any expensive BraTS job.
+
+disclaimer: "Research prototype. Not a clinically validated diagnostic tool."
+expensive_training_requires_approval: true
+protocol: docs/experimental_protocol.md
+default_boundary_weight: 0.1
+
+runs:
+  - id: A0_baseline
+    train: true
+    isolates: baseline
+    description: "Phase 3 3D U-Net, Dice+CE, early fusion"
+    model:
+      name: unet3d
+      fusion: early
+      optional_monai: false
+    loss:
+      boundary_weight: 0.0
+      boundary_classes: null
+    uncertainty:
+      method: none
+      samples: 1
+
+  - id: A1_se_fusion
+    train: true
+    isolates: fusion
+    description: "SE stem on modalities (Hu 2018); same 3D U-Net"
+    model:
+      name: unet3d
+      fusion: se
+      fusion_reduction: 2
+      optional_monai: false
+    loss:
+      boundary_weight: 0.0
+    uncertainty:
+      method: none
+      samples: 1
+
+  - id: A2_attention
+    train: true
+    isolates: attention
+    description: "Attention U-Net (Oktay 2018); early fusion; Dice+CE"
+    model:
+      name: attention_unet3d
+      fusion: early
+      optional_monai: false
+    loss:
+      boundary_weight: 0.0
+    uncertainty:
+      method: none
+      samples: 1
+
+  - id: A3_boundary_et
+    train: true
+    isolates: boundary
+    description: "3D U-Net + Kervadec boundary on ET only (H1)"
+    model:
+      name: unet3d
+      fusion: early
+      optional_monai: false
+    loss:
+      boundary_weight: 0.1
+      boundary_classes: [3]
+    uncertainty:
+      method: none
+      samples: 1
+
+  - id: A4_mc_on_A0
+    train: false
+    checkpoint_from: A0_baseline
+    isolates: mc_dropout
+    description: "Reuse A0 weights; MC dropout T=10 at test (H2)"
+    model:
+      name: unet3d
+      fusion: early
+      optional_monai: false
+    loss:
+      boundary_weight: 0.0
+    uncertainty:
+      method: mc_dropout
+      samples: 10
+
+  - id: A5_combination
+    train: true
+    isolates: combination
+    description: "SE stem + ET boundary; MC T=10 at test. Not claimed SOTA."
+    model:
+      name: unet3d
+      fusion: se
+      fusion_reduction: 2
+      optional_monai: false
+    loss:
+      boundary_weight: 0.1
+      boundary_classes: [3]
+    uncertainty:
+      method: mc_dropout
+      samples: 10

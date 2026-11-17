@@ -39,6 +39,7 @@ def _build_criterion(train_cfg: dict[str, Any], torch: Any):
         include_background=bool(loss_cfg["include_background"]),
         class_weight_mode=str(loss_cfg.get("class_weight_mode", "none")),
         class_weights=weights,
+        boundary_classes=loss_cfg.get("boundary_classes"),
     )
 
 
@@ -71,6 +72,9 @@ def fit(
         "cuda" if train_cfg.get("device", "auto") != "cpu" and torch.cuda.is_available() else "cpu"
     )
     model = build_model(cfg_model).to(device)
+    from neurovisionx.evaluation.cost import count_parameters
+
+    n_params = count_parameters(model)
     criterion = _build_criterion(train_cfg, torch)
     optim = torch.optim.AdamW(
         model.parameters(),
@@ -188,6 +192,7 @@ def fit(
                 "monitor": monitor,
                 "device": str(device),
                 "amp": use_amp,
+                "n_params": n_params,
             },
         ),
     )

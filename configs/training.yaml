@@ -24,6 +24,7 @@ loss:
   dice_weight: 1.0
   ce_weight: 1.0
   boundary_weight: 0.0  # set >0 to test H1
+  boundary_classes: null  # null = all foreground; [3] = ET only
   include_background: false
   smooth: 1.0e-5
   class_weight_mode: inverse_freq  # none | inverse_freq | fixed
