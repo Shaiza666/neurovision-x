@@ -151,7 +151,7 @@ MIT. See [LICENSE](LICENSE). Cite the **software repository**, not a fictional a
 ```bibtex
 @software{neurovisionx2026,
   title        = {NeuroVision-X: a reproducible 3D glioma MRI segmentation research stack},
-  author       = {{NeuroVision-X contributors}},
+  author       = {Asghar, Shaiza},
   year         = {2026},
   url          = {https://github.com/Shaiza666/neurovision-x},
   note         = {Experimental prototype. Not a clinically validated diagnostic system.}

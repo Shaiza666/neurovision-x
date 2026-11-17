@@ -3,7 +3,10 @@ title: "NeuroVision-X: a reproducible 3D glioma MRI segmentation research stack"
 message: Cite this GitHub repository as software. It is not a peer-reviewed article.
 type: software
 authors:
-  - name: "NeuroVision-X contributors"
+  - family-names: "Asghar"
+    given-names: "Shaiza"
+    alias: "Shaiza666"
+    website: "https://github.com/Shaiza666"
 url: "https://github.com/Shaiza666/neurovision-x"
 repository-code: "https://github.com/Shaiza666/neurovision-x"
 license: MIT
