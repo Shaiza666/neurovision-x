@@ -31,14 +31,13 @@ NeuroVision-X implements a **matched protocol** for 3D U-Net and Attention U-Net
 
 ```mermaid
 flowchart LR
-  MRI["BraTS NIfTI<br/>T1 T1ce T2 FLAIR"] --> Data["data/: validate, split, z-score"]
-  Data --> Models["3D U-Net / Attention U-Net<br/>optional SE stem"]
-  Models --> Train["Dice+CE ± ET boundary"]
-  Train --> CKPT["experiments/*/best.pt"]
-  CKPT --> Eval["Dice HD95 ECE · MC dropout"]
-  CKPT --> XAI["Grad-CAM · overlays"]
+  MRI["BraTS NIfTI T1 T1ce T2 FLAIR"] --> Data["data validate split z-score"]
+  Data --> Models["3D U-Net or Attention U-Net optional SE stem"]
+  Models --> Train["Dice plus CE optional ET boundary"]
+  Train --> CKPT["experiments best.pt"]
+  CKPT --> Eval["Dice HD95 ECE MC dropout"]
+  CKPT --> XAI["Grad-CAM overlays"]
   CKPT --> Demo["app_research.py"]
-  Photo["Natural image"] --> YOLO["app.py YOLOv8n"]
 ```
 
 Module map: [`docs/architecture.md`](docs/architecture.md).

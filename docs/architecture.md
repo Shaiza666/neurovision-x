@@ -8,39 +8,37 @@ This diagram describes the **implemented** software. Official BraTS volumes are 
 
 ```mermaid
 flowchart TB
-  subgraph inputs [Inputs]
-    NIfTI["Licensed BraTS NIfTI<br/>T1, T1ce, T2, FLAIR, optional seg"]
-    YOLOIMG["Natural images / video<br/>YOLOv8n ONNX"]
+  subgraph inputs["Inputs"]
+    NIfTI["Licensed BraTS NIfTI T1 T1ce T2 FLAIR optional seg"]
   end
 
-  subgraph data [Phase 2 data layer]
-    INV["inventory / validate"]
+  subgraph data["Phase 2 data layer"]
+    INV["inventory validate"]
     SPLIT["patient-level splits"]
-    PRE["RAS, 1 mm, z-score, patches"]
+    PRE["RAS 1 mm z-score patches"]
   end
 
-  subgraph models [Phases 3–4 models]
-    UNET["3D U-Net<br/>Çiçek 2016"]
-    ATT["Attention U-Net<br/>Oktay 2018"]
-    SE["optional SE stem<br/>Hu 2018"]
-    LOSS["Dice + CE<br/>optional Kervadec boundary"]
+  subgraph models["Phases 3-4 models"]
+    UNET["3D U-Net Cicek 2016"]
+    ATT["Attention U-Net Oktay 2018"]
+    SE["optional SE stem Hu 2018"]
+    LOSS["Dice plus CE optional Kervadec boundary"]
   end
 
-  subgraph train [Phase 3 engine]
-    LOOP["AMP, clip, checkpoints<br/>best.pt / latest.pt"]
-    SMOKE["smoke_train.py<br/>random tensors only"]
+  subgraph train["Phase 3 engine"]
+    LOOP["AMP clip checkpoints best.pt latest.pt"]
+    SMOKE["smoke_train.py random tensors only"]
   end
 
-  subgraph eval [Phases 5–6]
-    MET["Dice, HD95, P/R"]
-    CAL["ECE, NLL, Brier"]
+  subgraph eval["Phases 5-6"]
+    MET["Dice HD95 precision recall"]
+    CAL["ECE NLL Brier"]
     MC["MC dropout T=10"]
-    CAM["3D Grad-CAM, overlays"]
+    CAM["3D Grad-CAM overlays"]
   end
 
-  subgraph ui [Phase 7]
-    DEMO["app_research.py<br/>checkpoint forward only"]
-    YOLO["app.py YOLOv8n"]
+  subgraph ui["Phase 7"]
+    DEMO["app_research.py checkpoint forward only"]
   end
 
   NIfTI --> INV --> SPLIT --> PRE
@@ -56,7 +54,6 @@ flowchart TB
   LOOP --> MC
   LOOP --> CAM
   LOOP --> DEMO
-  YOLOIMG --> YOLO
 ```
 
 Missing BraTS folders stop the patient path with `MissingBraTSDataError`. The UI does not invent logits.

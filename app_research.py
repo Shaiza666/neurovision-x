@@ -86,19 +86,30 @@ def _cached_model(path_str: str):
 
 
 def _header() -> None:
-    st.markdown('<p class="nv-kicker">Phase 7 · 3D glioma segmentation research dashboard</p>', unsafe_allow_html=True)
+    st.markdown(
+        '<p class="nv-kicker">Experimental 3D U-Net research demo · not a clinical diagnostic system</p>',
+        unsafe_allow_html=True,
+    )
     st.markdown('<p class="nv-title">Neuro<span>Vision</span>-X</p>', unsafe_allow_html=True)
     st.markdown(f'<div class="nv-banner">{DISCLAIMER}</div>', unsafe_allow_html=True)
-    st.caption(f"Package v{__version__} · YOLOv8 detector remains at app.py · no mock logits")
+    st.caption(
+        f"Package v{__version__} · 3D U-Net checkpoint forward only · no mock logits or fake metrics"
+    )
 
 
 def _sidebar_checkpoint():
     st.sidebar.header("Checkpoint")
     checkpoints = list_demo_checkpoints()
+    has_brats_trained = any(not row.get("smoke") for row in checkpoints)
+    if not has_brats_trained:
+        st.sidebar.error(
+            "No BraTS-trained 3D U-Net checkpoint exists on disk. "
+            "This UI will not invent predictions or metrics."
+        )
     if not checkpoints:
         st.sidebar.error(
-            "No `.pt` files under experiments/. Train a model (or run "
-            "`scripts/smoke_train.py`) before inference. The UI will not invent predictions."
+            "No `.pt` files under experiments/. A smoke checkpoint can be created with "
+            "`scripts/smoke_train.py` (random tensors, not BraTS). The UI will not invent predictions."
         )
         return None
     labels = [row["label"] for row in checkpoints]
@@ -106,9 +117,12 @@ def _sidebar_checkpoint():
     selected = next(row for row in checkpoints if row["label"] == choice)
     st.sidebar.write(f"Status: `{selected.get('status')}`")
     if selected["smoke"]:
-        st.sidebar.warning("This is a **synthetic smoke** checkpoint (random tensors). Not BraTS.")
+        st.sidebar.warning(
+            "Loaded weights are a **synthetic smoke** checkpoint (random tensors). "
+            "They are not a BraTS-trained U-Net."
+        )
     else:
-        st.sidebar.info("Non-smoke checkpoint. Still not a clinical device.")
+        st.sidebar.info("Non-smoke checkpoint on disk. Still not a clinical diagnostic system.")
     st.sidebar.header("Inference")
     class_index = st.sidebar.selectbox(
         "Grad-CAM class",
@@ -194,6 +208,10 @@ def main() -> None:
     )
 
     if selected is None:
+        st.error(
+            "No BraTS-trained 3D U-Net checkpoint exists on disk. "
+            "This experimental research demo will not show fake predictions or metrics."
+        )
         st.stop()
 
     try:
@@ -207,6 +225,12 @@ def main() -> None:
     st.sidebar.write(f"Architecture: `{model_name}`")
     st.sidebar.write(f"Epoch stored: `{payload.get('epoch', '?')}`")
     st.sidebar.caption("Predictions come from this file's `state_dict`. The UI never invents logits.")
+    if selected.get("smoke"):
+        st.warning(
+            "No BraTS-trained 3D U-Net checkpoint exists on disk. "
+            "The loaded weights are a synthetic smoke run (random tensors), not glioma MRI results. "
+            "Region Dice appears only if you upload a ground-truth segmentation."
+        )
 
     if "case" not in st.session_state:
         st.session_state.case = None
