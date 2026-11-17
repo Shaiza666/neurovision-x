@@ -1,0 +1,71 @@
+# Dataset and split settings. Paths point at local BraTS-style folders after
+# the user accepts the challenge license. No volumes are downloaded by default.
+# The loader inspects the tree that is actually present (patient folders,
+# official train/val/test subfolders, or flat NIfTI groups).
+
+dataset:
+  name: brats
+  description: Multimodal glioma MRI (T1, T1ce, T2, FLAIR) with nested WT/TC/ET labels.
+  license_note: Obtain data from the official BraTS / Synapse distribution. Do not commit patient files.
+  # Phase 1 selected a public BraTS glioma release (2021 or later). The inventory
+  # records the filename convention observed on disk (brats2021 vs brats2023_glioma).
+  release: inspect_on_disk
+
+paths:
+  raw_root: data/raw/brats
+  processed_root: data/processed/brats
+  splits_root: data/splits
+  output_root: experiments
+
+discovery:
+  recursive: true
+  max_depth: 6
+
+modalities:
+  - t1
+  - t1ce
+  - t2
+  - flair
+
+labels:
+  ncr: 1
+  ed: 2
+  et: 3
+  nested_regions:
+    - WT
+    - TC
+    - ET
+
+splits:
+  strategy: patient_level
+  train_ratio: 0.70
+  val_ratio: 0.10
+  test_ratio: 0.20
+  seed: 2026
+  forbid_slice_mix: true
+  honor_official_validation: true
+
+validation:
+  expect_ndim: 3
+  spacing_atol_mm: 0.15
+  require_matching_shape: true
+  require_finite: true
+  allowed_label_values: [0, 1, 2, 3, 4]
+
+preprocessing:
+  orientation: RAS
+  target_spacing_mm: [1.0, 1.0, 1.0]
+  resample_if_needed: true
+  intensity: zscore_nonzero
+  crop_foreground: true
+  foreground_margin: 2
+  stats_from: train_only
+
+patches:
+  size: [96, 96, 96]
+  overlap: 0.0
+  foreground_prob: 0.67
+
+qc:
+  n_patients: 8
+  output_dir: data/processed/brats/qc

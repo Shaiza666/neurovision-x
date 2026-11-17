@@ -1,30 +1,61 @@
 # NeuroVision-X
 
-Local computer-vision app for object detection on images and video. Inference runs on this machine with YOLOv8n (ONNX Runtime). The first run downloads the 6 MB weights from OpenCV into `models/yolov8n.onnx`.
+Research prototype for **3D glioma segmentation on multimodal MRI**, plus a preserved local **YOLOv8n** detection demo.
 
-## Run the UI
+**This software is not a clinically validated diagnostic tool.** Do not use it for diagnosis or treatment decisions. No BraTS training has been run in this repository unless an `experiments/` run folder contains a real log and checkpoint.
 
-```powershell
-cd NeuroVision-X
-py -3.12 -m venv .venv
-.\.venv\Scripts\python -m pip install -r requirements.txt
-.\.venv\Scripts\python -m streamlit run app.py
+Phase 1 literature and hypotheses: `docs/`. Reproducibility notes: `docs/reproducibility.md`.
+
+## Layout
+
+```
+configs/           experiment YAML (data, model, training)
+data/              raw / processed / patient splits (no NIfTI in git)
+src/neurovisionx/  3D segmentation package
+app/               notes; Streamlit detection UI remains at repo-root app.py
+docs/              literature review and research plan
+experiments/       run metadata (empty until a real training job)
+notebooks/
+scripts/           validate_dataset, prepare_splits, dataset_stats, dataset_qc, train, evaluate
+tests/
 ```
 
-Open the local URL Streamlit prints. Use **Image** for a photo (or the built-in street scene) and **Video** for a clip. Confidence, overlap, frame stride, and the frame cap are in the sidebar.
+The YOLO detector under `neurovision_x/` is unchanged.
 
-## Command line
+## 3D research code
 
 ```powershell
-.\.venv\Scripts\python -m neurovision_x download
+.\.venv\Scripts\python -m pip install -e .
+.\.venv\Scripts\python -m unittest
+.\.venv\Scripts\python scripts\train.py
+```
+
+`scripts/train.py` **exits** until official BraTS patient folders exist under `data/raw/brats/`. It will not write fake Dice scores. Optional GPU stack: `pip install -e ".[research]"` (PyTorch, MONAI, NiBabel).
+
+Place BraTS volumes only after accepting the challenge license. The Phase 2 loader **inspects the tree on disk** (patient folders, official train/val subfolders, or flat NIfTI groups). 2021-style (`_t1`, `_t1ce`, `_flair`) and 2023+ glioma (`-t1n`, `-t1c`, `-t2f`) filenames are recognized. Nested WT/TC/ET scores are derived from NCR/ED/ET labels; legacy ET label `4` is mapped to `3`.
+
+```powershell
+.\.venv\Scripts\python -m pip install -e ".[research]"
+.\.venv\Scripts\python scripts\validate_dataset.py
+.\.venv\Scripts\python scripts\prepare_splits.py
+.\.venv\Scripts\python scripts\dataset_stats.py
+.\.venv\Scripts\python scripts\dataset_qc.py
+```
+
+No official BraTS archive is currently in this workspace. Those scripts exit with `MissingBraTSDataError` until you unpack a licensed release under `data/raw/brats/`.
+
+## Detection UI (existing)
+
+```powershell
+.\.venv\Scripts\python -m pip install -r requirements.txt
+.\.venv\Scripts\python -m streamlit run app.py
 .\.venv\Scripts\python -m neurovision_x image photo.jpg -o outputs\photo.jpg
-.\.venv\Scripts\python -m neurovision_x video clip.mp4 -o outputs\clip.mp4 --stride 2 --max-frames 120
 ```
 
 ## Tests
 
 ```powershell
-.\.venv\Scripts\python -m unittest tests.test_pipeline
+.\.venv\Scripts\python -m unittest
 ```
 
-The tests cover letterboxing, non-maximum suppression, and the pipeline with a stand-in detector. They do not download weights.
+Split, config, Dice, and 3D U-Net **shape** tests use synthetic tensors where needed. Those tensors are not medical data and are not reported as research metrics.

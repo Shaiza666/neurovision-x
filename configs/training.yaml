@@ -1,0 +1,39 @@
+# Training and evaluation. Seeds and run metadata are required.
+
+seed: 2026
+deterministic: true
+device: auto  # cuda if available else cpu
+
+optim:
+  name: adamw
+  lr: 0.0001
+  weight_decay: 0.00001
+
+schedule:
+  epochs: 50
+  batch_size: 1
+  patch_size: [96, 96, 96]
+  sw_batch_size: 2
+  amp: true
+
+loss:
+  dice_weight: 1.0
+  ce_weight: 1.0
+  boundary_weight: 0.0  # set >0 to test H1
+  include_background: false
+  smooth: 1.0e-5
+
+uncertainty:
+  method: mc_dropout  # mc_dropout | tta | none
+  samples: 10
+  aggregate: patient_mean_entropy
+
+logging:
+  experiments_dir: experiments
+  save_every_epoch: 5
+  require_real_data: true
+
+early_stopping:
+  metric: dice_et
+  mode: max
+  patience: 15

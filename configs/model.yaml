@@ -1,0 +1,26 @@
+# Architecture. Baseline is a 3D U-Net. Transformer variants are optional (H3).
+
+name: unet3d
+framework: pytorch
+optional_monai: true
+
+in_channels: 4
+out_channels: 4  # background, NCR, ED, ET
+features: [16, 32, 64, 128]
+num_res_units: 2
+dropout: 0.1
+norm: instance
+activation: PReLU
+
+# Nested BraTS regions are derived from class logits in evaluation, not extra heads.
+output_layout: classes  # ncr, ed, et
+
+variants:
+  unet3d:
+    enabled: true
+  attention_unet3d:
+    enabled: false
+    note: Attention gates are optional; not enabled until H1 baseline exists.
+  unetr:
+    enabled: false
+    note: Deferred unless GPU memory allows a matched H3 comparison.
