@@ -222,6 +222,10 @@ If only `experiments/smoke/` exists, use the labelled **interface test** (random
 
 Guide: [`docs/demo.md`](docs/demo.md). Walkthrough: [`docs/demo_script.md`](docs/demo_script.md).
 
+**Live UI** (smoke checkpoint on disk; empty panels are placeholders, not scans):
+
+![Research dashboard — smoke checkpoint, not BraTS, not a clinical result](docs/figures/dashboards/research_01_hero.png)
+
 **Layout demo (random tensors, not a patient):**
 
 ![Synthetic overlay layout — not MRI, not research](docs/figures/explain_synthetic_not_mri/orthogonal_overlay.png)
@@ -234,9 +238,7 @@ Guide: [`docs/demo.md`](docs/demo.md). Walkthrough: [`docs/demo_script.md`](docs
 
 This path does not compute WT / TC / ET Dice.
 
-### Capture still needed
-
-Live Streamlit screenshots of `app_research.py` and `app.py` are **not** in git. After a local run, save honest captures (with the smoke / not-clinical banner visible) under `docs/figures/dashboards/` if you want them on GitHub. Do not screenshot fabricated MRI.
+![YOLO detector dashboard — 2D ONNX demo, not glioma segmentation](docs/figures/dashboards/yolo_01_hero.png)
 
 ---
 
@@ -299,7 +301,6 @@ BraTS training (exits until licensed NIfTI **and** protocol approval):
 3. Train **A0** on a CUDA machine (≥16 GB RAM recommended), then evaluate and run H2 (A4) on A0 weights.
 4. Train **A3** for H1 if compute remains; then A1 / A2 / A5.
 5. Revisit H3 only under a matched GPU budget.
-6. Optional: capture labelled dashboard screenshots for this README.
 
 Negative H1 / H2 outcomes will be reported if those jobs run. They will not be invented.
 
