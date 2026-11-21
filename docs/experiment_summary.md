@@ -2,7 +2,7 @@
 
 **Research prototype. Not a clinically validated diagnostic tool.**
 
-Generated: `2026-11-21T09:19:49.544414+00:00`
+Generated: `2026-11-21T10:06:13.099084+00:00`
 
 ## What was actually measured
 
