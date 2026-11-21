@@ -14,6 +14,8 @@ For binary masks \(P\) and \(G\):
 
 Empty \(P\) and empty \(G\) score 1. Empty \(P\) vs non-empty \(G\) scores 0. Implementation: `dice_coefficient` in `src/neurovisionx/evaluation/metrics.py`. Training uses the soft (probabilistic) form of Milletari et al. (2016) as a loss, excluding background by default.
 
+Precision, recall (**sensitivity**), and **specificity** are optional (`compute_pr=True` in `region_scores`). Sensitivity equals recall. Specificity is TN / (TN+FP) on the nested region mask. Empty-vs-empty scores 1; empty prediction vs tumor scores 0.
+
 ## HD95
 
 Hausdorff distance at the 95th percentile is a **surface** error. It is the metric BraTS uses alongside Dice; it is not a NeuroVision-X invention.

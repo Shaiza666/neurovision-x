@@ -81,6 +81,15 @@ def fit(
         lr=float(train_cfg["optim"]["lr"]),
         weight_decay=float(train_cfg["optim"]["weight_decay"]),
     )
+    scheduler = None
+    sched_name = str(train_cfg.get("optim", {}).get("scheduler", "none")).lower()
+    if sched_name in {"plateau", "reducelronplateau"}:
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optim,
+            mode=str(train_cfg.get("early_stopping", {}).get("mode", "max")),
+            factor=float(train_cfg.get("optim", {}).get("scheduler_factor", 0.5)),
+            patience=int(train_cfg.get("optim", {}).get("scheduler_patience", 5)),
+        )
     use_amp = amp_enabled(train_cfg, device)
     scaler = make_scaler(use_amp)
     grad_clip = float(train_cfg.get("grad_clip", 0.0))
@@ -150,6 +159,8 @@ def fit(
                 )
             else:
                 epochs_without_improve += 1
+            if scheduler is not None:
+                scheduler.step(current)
         history.append(row)
         save_checkpoint(
             latest_path,

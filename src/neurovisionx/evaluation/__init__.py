@@ -2,6 +2,7 @@ from neurovisionx.evaluation.cost import count_parameters, measure_gpu_memory, t
 from neurovisionx.evaluation.metrics import (
     brier_score_binary,
     brier_score_multiclass,
+    confusion_counts,
     dice_coefficient,
     expected_calibration_error,
     hd95,
@@ -14,6 +15,7 @@ from neurovisionx.evaluation.summarize import format_summary, summarize_values
 __all__ = [
     "brier_score_binary",
     "brier_score_multiclass",
+    "confusion_counts",
     "count_parameters",
     "dice_coefficient",
     "expected_calibration_error",

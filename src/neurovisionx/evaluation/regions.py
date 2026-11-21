@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from neurovisionx.evaluation.metrics import dice_coefficient, hd95, precision_recall
+from neurovisionx.evaluation.metrics import confusion_counts, dice_coefficient, hd95
 
 ET_LEGACY = 4
 NCR, ED, ET = 1, 2, 3
@@ -59,7 +59,9 @@ def region_scores(
         if compute_hd95:
             scores[f"hd95_{key}"] = hd95(pred_n[name], true_n[name])
         if compute_pr:
-            precision, recall = precision_recall(pred_n[name], true_n[name])
-            scores[f"precision_{key}"] = precision
-            scores[f"recall_{key}"] = recall
+            counts = confusion_counts(pred_n[name], true_n[name])
+            scores[f"precision_{key}"] = counts["precision"]
+            scores[f"recall_{key}"] = counts["recall"]
+            scores[f"sensitivity_{key}"] = counts["sensitivity"]
+            scores[f"specificity_{key}"] = counts["specificity"]
     return scores

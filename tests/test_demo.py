@@ -181,6 +181,7 @@ class SmokeCheckpointInferenceTests(unittest.TestCase):
             names = set(zf.namelist())
         self.assertIn("inference.json", names)
         self.assertIn("orthogonal_overlay.png", names)
+        self.assertIn("metrics.csv", names)
         sidecar = json.loads(zipfile.ZipFile(BytesIO(zipped)).read("inference.json"))
         self.assertTrue(sidecar["smoke"])
         self.assertEqual(sidecar["n_params"], result["n_params"])

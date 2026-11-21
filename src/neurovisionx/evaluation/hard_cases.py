@@ -49,6 +49,48 @@ def size_stratum(
     }
 
 
+def paired_wilcoxon(
+    baseline: np.ndarray,
+    proposed: np.ndarray,
+) -> dict[str, float]:
+    """Two-sided Wilcoxon signed-rank test on paired patient scores (H1).
+
+    Lower proposed ET HD95 vs baseline is the intended direction; this helper
+    does not claim H1. Returns NaN if scipy is missing or n < 6.
+    """
+    a = np.asarray(baseline, dtype=np.float64)
+    b = np.asarray(proposed, dtype=np.float64)
+    finite = np.isfinite(a) & np.isfinite(b)
+    a, b = a[finite], b[finite]
+    if a.size < 6:
+        return {"statistic": float("nan"), "pvalue": float("nan"), "n": float(a.size)}
+    try:
+        from scipy.stats import wilcoxon
+    except ImportError as exc:
+        raise ImportError("scipy is required for Wilcoxon tests") from exc
+    result = wilcoxon(a, b, zero_method="wilcox", alternative="two-sided")
+    return {
+        "statistic": float(result.statistic),
+        "pvalue": float(result.pvalue),
+        "n": float(a.size),
+    }
+
+
+def paired_cohens_d(baseline: np.ndarray, proposed: np.ndarray) -> dict[str, float]:
+    """Paired Cohen's d on (proposed - baseline). Not a BraTS result by itself."""
+    a = np.asarray(baseline, dtype=np.float64)
+    b = np.asarray(proposed, dtype=np.float64)
+    finite = np.isfinite(a) & np.isfinite(b)
+    delta = b[finite] - a[finite]
+    n = int(delta.size)
+    if n < 2:
+        return {"d": float("nan"), "mean_diff": float("nan"), "n": float(n)}
+    mean = float(delta.mean())
+    std = float(delta.std(ddof=1))
+    d = mean / std if std > 0 else float("nan")
+    return {"d": d, "mean_diff": mean, "n": float(n)}
+
+
 def spearman_uncertainty_dice(
     uncertainty: np.ndarray,
     dice: np.ndarray,

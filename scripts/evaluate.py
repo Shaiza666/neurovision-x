@@ -17,9 +17,14 @@ from neurovisionx.data.inventory import discover_inventory
 from neurovisionx.data.io import load_nifti
 from neurovisionx.data.preprocess import remap_seg, zscore_channels
 from neurovisionx.data.splits import load_split
-from neurovisionx.evaluation.metrics import brier_score_multiclass, expected_calibration_error
+from neurovisionx.evaluation.metrics import (
+    brier_score_multiclass,
+    expected_calibration_error,
+    negative_log_likelihood,
+)
 from neurovisionx.evaluation.regions import region_scores
 from neurovisionx.evaluation.summarize import summarize_values
+from neurovisionx.evaluation.tables import write_patient_csv
 from neurovisionx.utils.config import load_experiment_config
 from neurovisionx.utils.paths import project_root
 
@@ -29,6 +34,11 @@ def main() -> None:
     parser.add_argument("--run-name", default="debug")
     parser.add_argument("--checkpoint", type=Path, default=None)
     parser.add_argument("--split", default="test", choices=("train", "val", "test"))
+    parser.add_argument(
+        "--save-preds",
+        action="store_true",
+        help="Write prediction NIfTI under experiments/<run>/preds/. Not uploaded to git.",
+    )
     args = parser.parse_args()
 
     config = load_experiment_config()
@@ -93,11 +103,21 @@ def main() -> None:
         pred = probs.argmax(axis=0)
         scores = region_scores(pred, target, compute_hd95=True, compute_pr=True)
         scores["brier"] = brier_score_multiclass(probs, target)
+        scores["nll"] = negative_log_likelihood(probs, target)
         scores["ece"] = expected_calibration_error(
             probs.max(axis=0), (pred == target).astype(np.float64)
         )
         scores["patient_id"] = patient_id
         rows.append(scores)
+        if args.save_preds:
+            from neurovisionx.data.io import save_nifti
+
+            pred_dir = run_dir / "preds"
+            save_nifti(
+                pred_dir / f"{patient_id}_pred.nii.gz",
+                pred.astype(np.int16),
+                reference=files.get("t1ce") or files.get("t1"),
+            )
         if timed is None:
             patch_volume = volume[:, :, : patch[0], : patch[1], : patch[2]]
             timed = time_inference(model, patch_volume, mc_samples=1, n_repeat=3)
@@ -118,7 +138,14 @@ def main() -> None:
         "recall_tc",
         "precision_et",
         "recall_et",
+        "sensitivity_wt",
+        "sensitivity_tc",
+        "sensitivity_et",
+        "specificity_wt",
+        "specificity_tc",
+        "specificity_et",
         "brier",
+        "nll",
         "ece",
     )
     for key in metric_keys:
@@ -140,7 +167,8 @@ def main() -> None:
         "clinical_disclaimer": "Research prototype. Not a clinically validated diagnostic tool.",
     }
     out.write_text(json.dumps(payload_out, indent=2), encoding="utf-8")
-    print(f"Wrote {out} ({len(rows)} patients). Research prototype — not a clinical report.")
+    csv_path = write_patient_csv(rows, run_dir / f"metrics_{args.split}.csv")
+    print(f"Wrote {out} and {csv_path} ({len(rows)} patients). Research prototype — not a clinical report.")
 
 
 if __name__ == "__main__":

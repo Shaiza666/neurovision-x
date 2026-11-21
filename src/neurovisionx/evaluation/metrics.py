@@ -104,11 +104,18 @@ def negative_log_likelihood(
 
 def precision_recall(pred: np.ndarray, target: np.ndarray) -> tuple[float, float]:
     """Binary precision and recall. Empty vs empty scores 1; empty vs non-empty scores 0."""
+    counts = confusion_counts(pred, target)
+    return counts["precision"], counts["recall"]
+
+
+def confusion_counts(pred: np.ndarray, target: np.ndarray) -> dict[str, float]:
+    """TP/FP/FN/TN plus precision, recall (sensitivity), and specificity."""
     pred_b = np.asarray(pred).astype(bool)
     target_b = np.asarray(target).astype(bool)
-    tp = np.logical_and(pred_b, target_b).sum()
-    fp = np.logical_and(pred_b, np.logical_not(target_b)).sum()
-    fn = np.logical_and(np.logical_not(pred_b), target_b).sum()
+    tp = int(np.logical_and(pred_b, target_b).sum())
+    fp = int(np.logical_and(pred_b, np.logical_not(target_b)).sum())
+    fn = int(np.logical_and(np.logical_not(pred_b), target_b).sum())
+    tn = int(np.logical_and(np.logical_not(pred_b), np.logical_not(target_b)).sum())
     if tp + fp == 0:
         precision = 1.0 if fn == 0 else 0.0
     else:
@@ -117,7 +124,20 @@ def precision_recall(pred: np.ndarray, target: np.ndarray) -> tuple[float, float
         recall = 1.0 if fp == 0 else 0.0
     else:
         recall = float(tp / (tp + fn))
-    return precision, recall
+    if tn + fp == 0:
+        specificity = 1.0 if fn == 0 else 0.0
+    else:
+        specificity = float(tn / (tn + fp))
+    return {
+        "tp": float(tp),
+        "fp": float(fp),
+        "fn": float(fn),
+        "tn": float(tn),
+        "precision": precision,
+        "recall": recall,
+        "sensitivity": recall,
+        "specificity": specificity,
+    }
 
 
 def brier_score_multiclass(probs: np.ndarray, target: np.ndarray) -> float:

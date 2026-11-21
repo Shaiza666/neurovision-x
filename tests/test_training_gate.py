@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 import unittest
@@ -84,6 +85,37 @@ class TrainingGateTests(unittest.TestCase):
         self.assertEqual(completed.returncode, 0, combined)
         self.assertIn("SMOKE shape check", combined)
         self.assertIn("not research", combined)
+
+    def test_compare_runs_exits_without_json(self):
+        script = project_root() / "scripts" / "compare_runs.py"
+        completed = subprocess.run(
+            [
+                sys.executable,
+                str(script),
+                "--baseline",
+                "experiments/missing_a/metrics_test.json",
+                "--proposed",
+                "experiments/missing_b/metrics_test.json",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertNotEqual(completed.returncode, 0)
+        self.assertIn("must be existing metrics JSON", completed.stdout + completed.stderr)
+
+    def test_check_resources_runs(self):
+        script = project_root() / "scripts" / "check_resources.py"
+        completed = subprocess.run(
+            [sys.executable, str(script), "--json"],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        payload = json.loads(completed.stdout)
+        self.assertIn("cuda_available", payload)
+        self.assertTrue(payload["smoke_16_cubed_ok"])
 
     def test_evaluate_script_exits_without_data(self):
         script = project_root() / "scripts" / "evaluate.py"

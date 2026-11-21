@@ -31,6 +31,9 @@ Portfolio summary (contribution, implementation, CV relevance): [portfolio_summa
 | [research_report.md](research_report.md) | Abstract through conclusion: the portfolio write-up |
 | [architecture.md](architecture.md) | System diagram and module map |
 | [installation.md](installation.md) | Environment, install, and command index |
+| [dataset.md](dataset.md) | Official BraTS acquisition (Synapse; no auto-download) |
+| [training.md](training.md) | Smoke vs official A0–A5; hardware gate |
+| [evaluation.md](evaluation.md) | Dice/HD95/ECE JSON+CSV; H1 compare_runs |
 | [reproducibility.md](reproducibility.md) | Seeds, splits, run folders, honesty rules |
 | [literature_review.md](literature_review.md) | Phase 1 verified related work |
 | [research_gap.md](research_gap.md) | Open problems (not claimed solutions) |

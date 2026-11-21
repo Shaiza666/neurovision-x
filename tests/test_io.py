@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 from neurovisionx.data.dataset import MissingBraTSDataError, require_brats_root
-from neurovisionx.data.io import find_modality, resolve_patient_files
+from neurovisionx.data.io import find_modality, load_nifti, resolve_patient_files, save_nifti
 
 
 def _touch(path: Path) -> None:
@@ -52,6 +52,20 @@ class IoTests(unittest.TestCase):
             (raw / "patient").mkdir(parents=True)
             with self.assertRaises(MissingBraTSDataError):
                 require_brats_root(raw)
+
+    def test_save_and_load_nifti_roundtrip(self):
+        try:
+            import nibabel  # noqa: F401
+            import numpy as np
+        except ImportError:
+            self.skipTest("nibabel/numpy missing")
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "pred.nii.gz"
+            data = np.zeros((4, 4, 4), dtype=np.int16)
+            data[1:3, 1:3, 1:3] = 3
+            save_nifti(path, data)
+            loaded = load_nifti(path)
+            np.testing.assert_array_equal(loaded, data)
 
     def test_loose_files_without_patient_dirs_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:

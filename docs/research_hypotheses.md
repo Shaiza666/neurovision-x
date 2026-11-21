@@ -35,6 +35,8 @@ MC dropout (Gal and Ghahramani, 2016) approximates the posterior predictive by \
 
 **Falsifiers.** No HD95 improvement; Dice drop larger than the margin; instability of \(\lambda_{\mathrm{bd}}\).
 
+**Software:** after A0 and A3 `metrics_test.json` exist, `scripts/compare_runs.py` runs a paired Wilcoxon test and Cohen's d. It does not mark H1 supported.
+
 **Established method:** boundary / HD losses. **What is being tested:** whether that transfer holds on **glioma ET** under a matched 3D U-Net.
 
 ## H2 — Patient-aggregated uncertainty predicts segmentation failure better than voxel-wise maps

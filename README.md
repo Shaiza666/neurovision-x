@@ -2,7 +2,7 @@
 
 Reproducible **3D glioma MRI segmentation** research stack (PyTorch / MONAI), plus a preserved local **YOLOv8n** detector.
 
-[Documentation](docs/README.md) · [Research report](docs/research_report.md) · [Architecture](docs/architecture.md) · [Slides](docs/presentation.md) · [Portfolio summary](docs/portfolio_summary.md)
+[Documentation](docs/README.md) · [Dataset](docs/dataset.md) · [Training](docs/training.md) · [Evaluation](docs/evaluation.md) · [Research report](docs/research_report.md) · [Architecture](docs/architecture.md)
 
 **This software is an experimental research prototype. It is not a clinically validated diagnostic system. Do not use it for diagnosis or treatment decisions.**
 
@@ -18,7 +18,7 @@ It is **not** a published paper. No conference acceptance, award, or BraTS leade
 | Hypotheses H1 / H2 | **Untested** |
 | H3 (CNN vs transformer) | **Deferred** (`cuda: false` on the recorded machine) |
 | Smoke job (random tensors) | 2 epochs, CPU, PyTorch 2.15.0+cpu — **not research** |
-| Unit tests | 111 collected |
+| Unit tests | 116 collected |
 | Research dashboard | `app_research.py` — real checkpoints only |
 
 Details: [`docs/experimental_results.md`](docs/experimental_results.md).

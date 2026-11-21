@@ -71,6 +71,8 @@ Shape and loader tests use synthetic tensors or tiny NIfTI fixtures. Those tenso
 | Reliability | `.\.venv\Scripts\python scripts\analyze_reliability.py --run-name A0_baseline --samples 10` | Refuses smoke weights |
 | Ablation table | `.\.venv\Scripts\python scripts\ablation_plan.py` | Prints A0–A5; does not train |
 | Collect reports | `.\.venv\Scripts\python scripts\collect_results.py` | Rewrites results markdown from JSON |
+| Resource check | `.\.venv\Scripts\python scripts\check_resources.py` | CPU/GPU/RAM; does not train |
+| H1 JSON compare | `.\.venv\Scripts\python scripts\compare_runs.py --baseline <a> --proposed <b>` | Needs two real `metrics_test.json` files |
 | Explain (synthetic layout) | `.\.venv\Scripts\python scripts\explain.py --synthetic` | Watermarked random tensors |
 | Explain (patient) | `.\.venv\Scripts\python scripts\explain.py --run-name A0_baseline --patient-id <id>` | Needs non-smoke checkpoint + NIfTI |
 | Research dashboard | `.\.venv\Scripts\python -m streamlit run app_research.py` | Real checkpoint only |
@@ -80,7 +82,18 @@ Shape and loader tests use synthetic tensors or tiny NIfTI fixtures. Those tenso
 
 Official BraTS / Synapse glioma MRI is **not** in git. After accepting the challenge license, unpack volumes under `data/raw/brats/`. See `data/raw/README.md`. Do not commit `.nii.gz`.
 
-Until that tree exists, `train.py` and the dataset scripts raise `MissingBraTSDataError`. That is expected.
+Until that tree exists, `train.py` and the dataset scripts raise `MissingBraTSDataError`. That is expected. Step-by-step Synapse access: [dataset.md](dataset.md). Training and evaluation commands: [training.md](training.md), [evaluation.md](evaluation.md).
+
+## 8. Troubleshooting
+
+| Symptom | Cause | Action |
+| --- | --- | --- |
+| `No BraTS volumes` | `data/raw/brats/` empty | License the data; do not synthesize MRI |
+| Smoke checkpoint refused | Evaluating `experiments/smoke/` as research | Train a non-smoke run on official NIfTI |
+| CUDA unavailable | CPU PyTorch wheel | Official 96³ jobs need a GPU machine |
+| `unetr` NotImplementedError | H3 deferred | Keep 3D U-Net until a matched GPU protocol is approved |
+| Streamlit empty views | No inference yet | Load a checkpoint and run a real forward pass |
+| Out of memory | 96³ on ~8 GB RAM | Use smoke 16³ locally; run official jobs elsewhere |
 
 ## 7. Checkpoints
 

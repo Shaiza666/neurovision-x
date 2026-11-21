@@ -11,7 +11,7 @@ from pathlib import Path
 
 import numpy as np
 
-from neurovisionx.evaluation.hard_cases import rank_failures
+from neurovisionx.evaluation.hard_cases import paired_cohens_d, paired_wilcoxon, rank_failures
 from neurovisionx.evaluation.metrics import brier_score_multiclass, precision_recall
 from neurovisionx.evaluation.regions import region_scores
 from neurovisionx.evaluation.summarize import format_summary, summarize_values
@@ -44,6 +44,32 @@ class MetricExtensionTests(unittest.TestCase):
         scores = region_scores(volume, volume, compute_pr=True)
         self.assertEqual(scores["precision_et"], 1.0)
         self.assertEqual(scores["recall_et"], 1.0)
+        self.assertEqual(scores["sensitivity_et"], 1.0)
+        self.assertEqual(scores["specificity_et"], 1.0)
+
+    def test_paired_wilcoxon_and_cohens_d(self):
+        baseline = np.array([10.0, 12.0, 11.0, 13.0, 9.0, 14.0], dtype=np.float64)
+        proposed = baseline - 2.0
+        delta = paired_cohens_d(baseline, proposed)
+        self.assertLess(delta["mean_diff"], 0.0)
+        self.assertEqual(delta["n"], 6.0)
+        stats = paired_wilcoxon(baseline, proposed)
+        self.assertEqual(stats["n"], 6.0)
+        self.assertLessEqual(stats["pvalue"], 1.0)
+
+    def test_patient_csv_roundtrip(self):
+        from neurovisionx.evaluation.tables import write_patient_csv
+
+        rows = [
+            {"patient_id": "A", "dice_et": 0.5, "hd95_et": 12.0},
+            {"patient_id": "B", "dice_et": 0.7, "hd95_et": 8.0},
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            path = write_patient_csv(rows, Path(tmp) / "metrics.csv")
+            text = path.read_text(encoding="utf-8")
+        self.assertIn("patient_id", text)
+        self.assertIn("dice_et", text)
+        self.assertIn("A", text)
 
     def test_summarize_ci_and_missing(self):
         self.assertEqual(format_summary(summarize_values([])), "not measured")

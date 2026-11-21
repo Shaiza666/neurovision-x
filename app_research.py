@@ -541,7 +541,7 @@ def main() -> None:
                 st.error(f"Could not build the ZIP: {exc}")
         if st.session_state.bundle_bytes is not None:
             st.download_button(
-                "Download PNG + JSON ZIP",
+                "Download PNG + JSON/CSV ZIP",
                 data=st.session_state.bundle_bytes,
                 file_name="neurovisionx_research_viz.zip",
                 mime="application/zip",

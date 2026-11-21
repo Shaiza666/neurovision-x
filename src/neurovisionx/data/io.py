@@ -199,3 +199,30 @@ def load_nifti(path: Path) -> np.ndarray:
     if data.size == 0:
         raise CorruptedNiftiError(f"Empty voxel array: {path}")
     return data
+
+
+def save_nifti(
+    path: Path,
+    data: np.ndarray,
+    *,
+    affine: np.ndarray | None = None,
+    reference: Path | None = None,
+) -> Path:
+    """Write an array as NIfTI. Does not invent voxels; ``data`` must already exist.
+
+    Uses ``reference`` affine/header when provided so predictions stay in the
+    same space as the loaded MRI. Identity affine is used only if neither is given.
+    """
+    nib = _require_nibabel()
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    header = None
+    if reference is not None:
+        image = load_nifti_image(reference)
+        affine = np.asarray(image.affine, dtype=np.float64)
+        header = image.header.copy()
+    if affine is None:
+        affine = np.eye(4, dtype=np.float64)
+    out = nib.Nifti1Image(np.asanyarray(data), affine, header=header)
+    nib.save(out, str(path))
+    return path

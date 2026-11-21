@@ -295,6 +295,10 @@ def bundle_zip(
         "status_banner": result.get("status_banner"),
     }
     (out_dir / "inference.json").write_text(json.dumps(sidecar, indent=2, default=str), encoding="utf-8")
+    if result.get("scores"):
+        from neurovisionx.evaluation.tables import scores_to_csv_text
+
+        (out_dir / "metrics.csv").write_text(scores_to_csv_text(result["scores"]), encoding="utf-8")
     buffer = io.BytesIO()
     with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as zf:
         for path in out_dir.iterdir():
