@@ -79,8 +79,8 @@ Implemented pipeline (details: [architecture.md](architecture.md), [proposed_met
 5. **Loss.** Soft Dice (background excluded) + inverse-frequency CE; optional Kervadec boundary on class 3 (ET).
 6. **Training engine.** AdamW, gradient clip, optional AMP, `best.pt` / `latest.pt`, val Dice WT/TC/ET. HD95 is computed on full volumes at evaluation time.
 7. **Inference.** Direct forward if spatial size equals the patch; otherwise sliding window.
-8. **Uncertainty.** Dropout left on at test (`T=10` planned). T=1 entropy in the demo is the softmax of the **same** logits as the displayed labels.
-9. **Explainability.** 3D Grad-CAM on the last spatial Conv3d; orthogonal MRI/pred/GT/error/entropy.
+8. **Uncertainty.** MC dropout (`T=10` planned for BraTS; optional T≈5 on small demo volumes). Flip TTA is implemented for `analyze_reliability.py`. Displayed demo labels stay T=1 argmax; T=1 entropy is the softmax of those logits.
+9. **Explainability.** 3D Grad-CAM on the last spatial Conv3d; occlusion sensitivity on small volumes; orthogonal MRI/pred/GT/error/entropy.
 10. **Reporting.** `scripts/collect_results.py` reads `experiments/*/`. Smoke folders never enter A/B/C tables.
 
 The YOLO detector (`app.py`) is out of scope for glioma metrics.

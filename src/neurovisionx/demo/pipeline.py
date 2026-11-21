@@ -22,6 +22,7 @@ from neurovisionx.evaluation.cost import count_parameters
 from neurovisionx.evaluation.inference import sliding_window_logits
 from neurovisionx.evaluation.regions import region_scores
 from neurovisionx.explainability.gradcam import DISCLAIMER, gradcam_3d
+from neurovisionx.explainability.occlusion import occlusion_sensitivity
 from neurovisionx.explainability.overlays import (
     error_rgb,
     labels_to_rgb,
@@ -29,8 +30,17 @@ from neurovisionx.explainability.overlays import (
 )
 from neurovisionx.explainability.panel import softmax_entropy, write_explain_panel
 from neurovisionx.explainability.views import ORIENTATION_AXIS, ORIENTATION_ORDER, extract_slice
+from neurovisionx.uncertainty.mc_dropout import mc_dropout_stats
 
 CAM_VOXEL_LIMIT = 48 ** 3
+OCCLUSION_VOXEL_LIMIT = 24 ** 3
+MC_VOXEL_LIMIT = 48 ** 3
+
+
+def _normalize_map(tensor: torch.Tensor) -> np.ndarray:
+    array = tensor.detach().cpu().float()
+    peak = array.max().clamp(min=1e-8)
+    return (array / peak).numpy()
 
 
 def _to_nchw(image: np.ndarray) -> torch.Tensor:
@@ -67,15 +77,23 @@ def run_inference(
     class_index: int = 3,
     overlap: float = 0.5,
     compute_cam: bool = True,
+    compute_occlusion: bool = False,
+    compute_mc: bool = False,
+    mc_samples: int = 5,
     device: torch.device | None = None,
 ) -> dict[str, Any]:
-    """Run the checkpoint on ``image`` (C,D,H,W). Returns arrays from that pass."""
+    """Run the checkpoint on ``image`` (C,D,H,W). Returns arrays from that pass.
+
+    Displayed labels stay the T=1 argmax. Optional MC entropy and occlusion
+    maps are extra research views; they do not replace the segmentation.
+    """
     device = device or torch.device("cpu")
     model = model.to(device)
     model.eval()
     patch = patch_size_from_payload(payload)
     volume = _to_nchw(image).to(device)
-    n_voxels = int(np.prod(volume.shape[-3:]))
+    spatial = tuple(int(v) for v in volume.shape[-3:])
+    n_voxels = int(np.prod(spatial))
     t0 = time.perf_counter()
     logits = forward_logits(model, volume, patch, overlap=overlap)
     if device.type == "cuda":
@@ -105,6 +123,53 @@ def run_inference(
             f"(limit {CAM_VOXEL_LIMIT}). Attribution needs a smaller crop."
         )
 
+    occlusion = None
+    occlusion_note = "not computed"
+    if compute_occlusion and n_voxels <= OCCLUSION_VOXEL_LIMIT:
+        try:
+            occ = occlusion_sensitivity(
+                model, volume, patch=8, stride=8, class_index=class_index
+            )
+            occlusion = _normalize_map(occ)
+            occlusion_note = (
+                f"Occlusion sensitivity (8³ cubes, stride 8) for class {class_index}. "
+                "Zero cubes are not MRI; this is not a clinical explanation."
+            )
+        except Exception as exc:
+            occlusion = None
+            occlusion_note = f"Occlusion failed ({type(exc).__name__}): {exc}"
+    elif compute_occlusion:
+        occlusion_note = (
+            f"Occlusion skipped: volume has {n_voxels} voxels "
+            f"(limit {OCCLUSION_VOXEL_LIMIT}). Use a crop or scripts/explain.py."
+        )
+
+    mc_entropy = None
+    mc_note = "not computed"
+    if compute_mc and n_voxels <= MC_VOXEL_LIMIT and spatial == patch:
+        try:
+            stats = mc_dropout_stats(model, volume, samples=max(int(mc_samples), 1))
+            mc_entropy = stats["entropy"].detach().cpu().numpy()
+            mc_note = (
+                f"MC dropout T={max(int(mc_samples), 1)} predictive entropy. "
+                "Displayed labels remain T=1 argmax. Not a clinical confidence score."
+            )
+        except Exception as exc:
+            mc_entropy = None
+            mc_note = f"MC dropout failed ({type(exc).__name__}): {exc}"
+        finally:
+            model.eval()
+    elif compute_mc and spatial != patch:
+        mc_note = (
+            "MC dropout skipped for sliding-window volumes. "
+            "Use scripts/analyze_reliability.py after licensed BraTS data is available."
+        )
+    elif compute_mc:
+        mc_note = (
+            f"MC dropout skipped: volume has {n_voxels} voxels "
+            f"(limit {MC_VOXEL_LIMIT})."
+        )
+
     scores = None
     if target is not None:
         try:
@@ -122,6 +187,10 @@ def run_inference(
         "entropy": entropy,
         "cam": cam,
         "cam_note": cam_note,
+        "occlusion": occlusion,
+        "occlusion_note": occlusion_note,
+        "mc_entropy": mc_entropy,
+        "mc_note": mc_note,
         "elapsed_ms": float(elapsed_ms),
         "n_params": count_parameters(model),
         "patch": list(patch),
@@ -146,6 +215,8 @@ def slice_pack(
     target: np.ndarray | None = None,
     entropy: np.ndarray | None = None,
     cam: np.ndarray | None = None,
+    occlusion: np.ndarray | None = None,
+    mc_entropy: np.ndarray | None = None,
     indices: dict[str, int] | None = None,
 ) -> dict[str, dict[str, np.ndarray]]:
     """2D planes for the UI, using the same view helpers as Phase 6."""
@@ -165,6 +236,10 @@ def slice_pack(
             item["entropy"] = extract_slice(entropy, orientation, idx)  # type: ignore[arg-type]
         if cam is not None:
             item["cam"] = extract_slice(cam, orientation, idx)  # type: ignore[arg-type]
+        if occlusion is not None:
+            item["occlusion"] = extract_slice(occlusion, orientation, idx)  # type: ignore[arg-type]
+        if mc_entropy is not None:
+            item["mc_entropy"] = extract_slice(mc_entropy, orientation, idx)  # type: ignore[arg-type]
         pack[orientation] = item
     return pack
 
@@ -212,6 +287,8 @@ def bundle_zip(
         "device": result.get("device"),
         "patch": result.get("patch"),
         "cam_note": result.get("cam_note"),
+        "occlusion_note": result.get("occlusion_note"),
+        "mc_note": result.get("mc_note"),
         "class_hist": result.get("class_hist"),
         "scores": result.get("scores"),
         "disclaimer": result.get("disclaimer"),

@@ -14,7 +14,7 @@ The YOLOv8 detector UI remains `streamlit run app.py`.
 - Loads weights with the architecture that matches the file (smoke jobs use `training.smoke.features`, not the full YAML widths).
 - Accepts co-registered T1, T1ce, T2, FLAIR NIfTI (optional seg). Missing modalities are errors; zeros are not synthesized.
 - Runs **that checkpoint** (sliding window if needed). No mock logits.
-- Shows orthogonal MRI, prediction, GT comparison, T=1 entropy from the same softmax, and Grad-CAM on small volumes.
+- Shows orthogonal MRI, prediction, GT comparison, T=1 entropy from the same softmax, Grad-CAM, optional occlusion sensitivity, and optional MC-dropout entropy on small volumes. Displayed labels stay T=1 argmax.
 - Reports wall-clock ms and parameter count from the pass that was run.
 - Downloads a ZIP of the Phase 6-style figures.
 

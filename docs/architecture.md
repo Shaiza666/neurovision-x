@@ -68,7 +68,7 @@ Missing BraTS folders stop the patient path with `MissingBraTSDataError`. The UI
 | `training/` | Engine, checkpoints, smoke loaders, curves |
 | `evaluation/` | Sliding-window inference, nested regions, metrics, cost |
 | `uncertainty/` | MC dropout, flip TTA, calibration tables |
-| `explainability/` | Grad-CAM, orthogonal views, overlays, 3D preview |
+| `explainability/` | Grad-CAM, occlusion, orthogonal views, overlays, 3D preview |
 | `experiments/` | Ablation catalog, result collection from JSON |
 | `demo/` | Checkpoint load, upload validation, dashboard inference |
 | `utils/` | YAML config, seeds, run metadata |

@@ -2,7 +2,7 @@
 
 **This software is a research prototype, not a clinically validated diagnostic tool.**
 
-Generated: `2026-11-17T14:26:25.370794+00:00` from on-disk `experiments/` JSON only. Missing measurements are written as **not measured**. No leaderboard number, no paper table, and no synthetic smoke Dice was copied into the comparison tables.
+Generated: `2026-11-21T08:44:21.786585+00:00` from on-disk `experiments/` JSON only. Missing measurements are written as **not measured**. No leaderboard number, no paper table, and no synthetic smoke Dice was copied into the comparison tables.
 
 ## Verdict on recorded evidence
 

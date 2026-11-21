@@ -172,8 +172,23 @@ def _sidebar_checkpoint():
         format_func=lambda i: {1: "1 NCR", 2: "2 ED", 3: "3 ET"}[i],
     )
     compute_cam = st.sidebar.checkbox("Compute 3D Grad-CAM (small volumes)", value=True)
-    st.sidebar.caption("Heatmaps do not prove clinical reasoning. See docs/explainability.md.")
-    return {**selected, "class_index": int(class_index), "compute_cam": bool(compute_cam)}
+    compute_occlusion = st.sidebar.checkbox("Compute occlusion sensitivity (small volumes)", value=True)
+    compute_mc = st.sidebar.checkbox("Compute MC dropout entropy (small volumes)", value=True)
+    mc_samples = int(
+        st.sidebar.slider("MC dropout samples T", min_value=2, max_value=10, value=5, step=1)
+    )
+    st.sidebar.caption(
+        "Heatmaps and MC maps do not prove clinical reasoning. "
+        "Displayed labels stay T=1 argmax. See docs/explainability.md."
+    )
+    return {
+        **selected,
+        "class_index": int(class_index),
+        "compute_cam": bool(compute_cam),
+        "compute_occlusion": bool(compute_occlusion),
+        "compute_mc": bool(compute_mc),
+        "mc_samples": mc_samples,
+    }
 
 
 def _load_from_uploads(uploads: dict) -> dict | None:
@@ -359,6 +374,9 @@ def main() -> None:
                             target=case.get("seg"),
                             class_index=int(selected["class_index"]),
                             compute_cam=bool(selected["compute_cam"]),
+                            compute_occlusion=bool(selected["compute_occlusion"]),
+                            compute_mc=bool(selected["compute_mc"]),
+                            mc_samples=int(selected["mc_samples"]),
                         )
                     except Exception as exc:
                         st.session_state.result = None
@@ -410,6 +428,8 @@ def main() -> None:
         target=case.get("seg"),
         entropy=result.get("entropy"),
         cam=result.get("cam"),
+        occlusion=result.get("occlusion"),
+        mc_entropy=result.get("mc_entropy"),
         indices=indices,
     )
 
@@ -445,27 +465,45 @@ def main() -> None:
     elif page.startswith("4"):
         st.subheader("Uncertainty")
         st.caption(
-            "Predictive entropy from the **same softmax** as the displayed labels (T=1). "
-            "MC dropout and flip TTA live in `neurovisionx.uncertainty` and "
-            "`scripts/analyze_reliability.py`; they are not run on this page. "
+            "T=1 entropy is from the **same softmax** as the displayed labels. "
+            "Optional MC dropout entropy is an extra stochastic map; labels stay T=1. "
+            "Flip TTA for full BraTS volumes lives in `scripts/analyze_reliability.py`. "
             "This is not voxel-wise error and not a clinical confidence score."
         )
         if "entropy" not in pack["axial"]:
             st.error("Entropy was not computed.")
         else:
-            _show_triplanar(pack, [("mri", "MRI"), ("entropy", "Entropy (nats)")])
+            _show_triplanar(pack, [("mri", "MRI"), ("entropy", "T=1 entropy (nats)")])
             flat = result["entropy"].ravel()
-            st.bar_chart({"entropy histogram": np.histogram(flat, bins=20)[0]})
+            st.bar_chart({"T=1 entropy histogram": np.histogram(flat, bins=20)[0]})
+        st.caption(result.get("mc_note", ""))
+        if result.get("mc_entropy") is not None and "mc_entropy" in pack["axial"]:
+            _show_triplanar(pack, [("mri", "MRI"), ("mc_entropy", "MC entropy (nats)")])
+            mc_flat = result["mc_entropy"].ravel()
+            st.bar_chart({"MC entropy histogram": np.histogram(mc_flat, bins=20)[0]})
+        elif selected.get("compute_mc"):
+            st.info(result.get("mc_note", "MC dropout was not computed on this pass."))
 
     elif page.startswith("5"):
-        st.subheader("Explainability (Grad-CAM)")
+        st.subheader("Explainability (Grad-CAM and occlusion)")
         st.caption(result.get("cam_note", ""))
-        st.caption("Grad-CAM is not a proof of correctness. See docs/explainability.md.")
+        st.caption(
+            "Grad-CAM and occlusion are research localizations, not proof of correctness. "
+            "See docs/explainability.md."
+        )
         if result.get("cam") is None:
             st.warning(result.get("cam_note", "Grad-CAM not available for this volume."))
             _show_triplanar(pack, [("mri", "MRI"), ("pred", "Prediction")])
         else:
             _show_triplanar(pack, [("mri", "MRI"), ("cam", "Grad-CAM"), ("pred", "Prediction")])
+        st.caption(result.get("occlusion_note", ""))
+        if result.get("occlusion") is not None and "occlusion" in pack["axial"]:
+            _show_triplanar(
+                pack,
+                [("mri", "MRI"), ("occlusion", "Occlusion sensitivity"), ("pred", "Prediction")],
+            )
+        elif selected.get("compute_occlusion"):
+            st.info(result.get("occlusion_note", "Occlusion was not computed on this pass."))
 
     else:
         st.subheader("Run information")
@@ -480,6 +518,8 @@ def main() -> None:
                 "smoke": result["smoke"],
                 "class_hist": result["class_hist"],
                 "cam_note": result["cam_note"],
+                "occlusion_note": result.get("occlusion_note"),
+                "mc_note": result.get("mc_note"),
                 "disclaimer": DISCLAIMER,
             }
         )

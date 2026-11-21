@@ -18,7 +18,7 @@ It is **not** a published paper. No conference acceptance, award, or BraTS leade
 | Hypotheses H1 / H2 | **Untested** |
 | H3 (CNN vs transformer) | **Deferred** (`cuda: false` on the recorded machine) |
 | Smoke job (random tensors) | 2 epochs, CPU, PyTorch 2.15.0+cpu — **not research** |
-| Unit tests | 106 collected |
+| Unit tests | 111 collected |
 | Research dashboard | `app_research.py` — real checkpoints only |
 
 Details: [`docs/experimental_results.md`](docs/experimental_results.md).

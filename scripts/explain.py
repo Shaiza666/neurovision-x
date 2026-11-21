@@ -24,7 +24,9 @@ SYNTHETIC_TITLE = (
 )
 
 
-def _synthetic_panel(out_dir: Path, class_index: int, also_gradient: bool) -> None:
+def _synthetic_panel(
+    out_dir: Path, class_index: int, also_gradient: bool, also_occlusion: bool
+) -> None:
     import torch
 
     from neurovisionx.explainability.panel import explain_volume
@@ -54,6 +56,7 @@ def _synthetic_panel(out_dir: Path, class_index: int, also_gradient: bool) -> No
         target=target.numpy(),
         class_index=class_index,
         also_gradient=also_gradient,
+        also_occlusion=also_occlusion,
         title=SYNTHETIC_TITLE,
     )
     print(f"Wrote synthetic (not MRI) panel under {out_dir}")
@@ -71,6 +74,11 @@ def main() -> None:
     parser.add_argument("--class-index", type=int, default=3)
     parser.add_argument("--mc-samples", type=int, default=0)
     parser.add_argument("--also-gradient", action="store_true")
+    parser.add_argument(
+        "--also-occlusion",
+        action="store_true",
+        help="Occlusion sensitivity on small volumes. Not a clinical explanation.",
+    )
     parser.add_argument("--out-dir", type=Path, default=None)
     args = parser.parse_args()
     root = project_root()
@@ -78,7 +86,7 @@ def main() -> None:
 
     if args.synthetic:
         out = args.out_dir or (root / "docs" / "figures" / "explain_synthetic_not_mri")
-        _synthetic_panel(out, args.class_index, args.also_gradient)
+        _synthetic_panel(out, args.class_index, args.also_gradient, args.also_occlusion)
         return
 
     raw = root / config["data"]["paths"]["raw_root"]
@@ -142,6 +150,7 @@ def main() -> None:
         class_index=args.class_index,
         entropy=entropy,
         also_gradient=args.also_gradient,
+        also_occlusion=args.also_occlusion,
         title=title,
     )
     print(f"Wrote {out}. {DISCLAIMER}")

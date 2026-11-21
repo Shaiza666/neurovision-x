@@ -15,6 +15,7 @@ import torch
 import torch.nn as nn
 
 from neurovisionx.explainability.gradcam import DISCLAIMER, GradCAMResult, gradcam_3d, input_gradient_saliency
+from neurovisionx.explainability.occlusion import occlusion_sensitivity
 from neurovisionx.explainability.overlays import save_orthogonal_attribution, save_orthogonal_overlay
 from neurovisionx.explainability.volume3d import save_prediction_pointcloud
 
@@ -47,6 +48,7 @@ def write_explain_panel(
     target: np.ndarray | None = None,
     entropy: np.ndarray | None = None,
     saliency: np.ndarray | None = None,
+    occlusion: np.ndarray | None = None,
     title: str = DISCLAIMER,
 ) -> dict[str, str]:
     """Write overlay, attribution, 3D preview, and a JSON sidecar."""
@@ -85,6 +87,16 @@ def write_explain_panel(
                 title=title,
             )
         )
+    if occlusion is not None:
+        paths["occlusion"] = str(
+            save_orthogonal_attribution(
+                image,
+                occlusion,
+                out / "orthogonal_occlusion.png",
+                cam_label="occlusion sensitivity (normalised, unitless)",
+                title=title,
+            )
+        )
     sidecar = {
         "class_index": payload["class_index"],
         "layer_name": payload["layer_name"],
@@ -93,6 +105,7 @@ def write_explain_panel(
         "has_ground_truth": target is not None,
         "has_entropy": True,
         "entropy_kind": entropy_kind,
+        "has_occlusion": occlusion is not None,
         "files": paths,
         "disclaimer": DISCLAIMER,
         "limitations_doc": "docs/explainability.md",
@@ -112,6 +125,7 @@ def explain_volume(
     class_index: int = 3,
     entropy: np.ndarray | None = None,
     also_gradient: bool = False,
+    also_occlusion: bool = False,
     title: str = DISCLAIMER,
 ) -> dict[str, str]:
     """Grad-CAM on ``volume``, figures from the same prediction."""
@@ -119,6 +133,11 @@ def explain_volume(
     saliency = None
     if also_gradient:
         saliency = input_gradient_saliency(model, volume, class_index=class_index).cpu().numpy()
+    occlusion = None
+    if also_occlusion:
+        occ = occlusion_sensitivity(model, volume, patch=8, stride=8, class_index=class_index)
+        peak = occ.max().clamp(min=1e-8)
+        occlusion = (occ / peak).detach().cpu().numpy()
     return write_explain_panel(
         image,
         result,
@@ -126,5 +145,6 @@ def explain_volume(
         target=target,
         entropy=entropy,
         saliency=saliency,
+        occlusion=occlusion,
         title=title,
     )

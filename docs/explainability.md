@@ -10,9 +10,9 @@ Figures are generated only from a **forward (and, for Grad-CAM, backward) pass o
 | Product | Method | Citation / status |
 | --- | --- | --- |
 | 3D Grad-CAM | Gradient-weighted activations of a Conv3d layer, ReLU, trilinear upsample | Selvaraju et al., ICCV 2017 (2D); 3D is the same identity with 3D GAP and interpolation |
-| Occlusion sensitivity | Drop cubes, record drop in class mass | Zeiler & Fergus, ECCV 2014 (style); already in `occlusion.py` |
+| Occlusion sensitivity | Drop cubes, record drop in class mass | Zeiler & Fergus, ECCV 2014 (style); `occlusion.py`, research dashboard (small volumes), `scripts/explain.py --also-occlusion` |
 | Input gradient | \(\lvert \partial s / \partial x \rvert\) averaged over modalities | Standard saliency; not a new method |
-| Uncertainty map | Predictive entropy of MC dropout or of a single softmax | Gal & Ghahramani 2016; Jungo et al. 2020 |
+| Uncertainty map | Predictive entropy of MC dropout or of a single softmax | Gal & Ghahramani 2016; Jungo et al. 2020. Dashboard: T=1 always; optional MC on small volumes. Flip TTA: `analyze_reliability.py` |
 | Overlays | Predicted labels on MRI; GT vs pred when a seg exists; FP/FN error | Linked to \(\arg\max\) of the same logits as Grad-CAM |
 | Orthogonal views | Axial / coronal / sagittal = spatial axes 0 / 1 / 2 of the RAS array | Labelled as tensor axes, not DICOM instance numbers |
 | 3D preview | Subsampled point cloud of predicted WT/ET | Matplotlib 3D, not a clinical renderer |

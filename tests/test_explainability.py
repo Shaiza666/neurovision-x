@@ -69,6 +69,67 @@ class GradCAMTests(unittest.TestCase):
         self.assertTrue(name)
 
 
+class OcclusionTests(unittest.TestCase):
+    def test_occlusion_map_shape_nonnegative(self):
+        try:
+            import torch
+        except ImportError:
+            self.skipTest("torch not installed")
+        from neurovisionx.explainability.occlusion import occlusion_sensitivity
+        from neurovisionx.models.factory import build_model
+
+        model = build_model(
+            {
+                "name": "unet3d",
+                "in_channels": 4,
+                "out_channels": 4,
+                "features": [8, 16],
+                "dropout": 0.0,
+                "optional_monai": False,
+                "fusion": "early",
+            }
+        )
+        volume = torch.randn(1, 4, 16, 16, 16)
+        sensitivity = occlusion_sensitivity(
+            model, volume, patch=8, stride=8, class_index=3
+        )
+        self.assertEqual(tuple(sensitivity.shape), (16, 16, 16))
+        self.assertTrue(torch.all(sensitivity >= 0))
+        self.assertTrue(torch.isfinite(sensitivity).all())
+
+    def test_explain_volume_writes_occlusion_when_requested(self):
+        try:
+            import torch
+        except ImportError:
+            self.skipTest("torch not installed")
+        from neurovisionx.explainability.panel import explain_volume
+        from neurovisionx.models.factory import build_model
+
+        model = build_model(
+            {
+                "name": "unet3d",
+                "features": [8, 16],
+                "dropout": 0.0,
+                "optional_monai": False,
+                "fusion": "early",
+            }
+        )
+        volume = torch.randn(1, 4, 16, 16, 16)
+        with tempfile.TemporaryDirectory() as tmp:
+            paths = explain_volume(
+                model,
+                volume,
+                volume[0].numpy(),
+                tmp,
+                class_index=3,
+                also_occlusion=True,
+                title="SYNTHETIC RANDOM TENSORS — not MRI.",
+            )
+            sidecar = json.loads(Path(paths["sidecar"]).read_text(encoding="utf-8"))
+            self.assertTrue(sidecar["has_occlusion"])
+            self.assertTrue(Path(paths["occlusion"]).is_file())
+
+
 class OverlayAndViewTests(unittest.TestCase):
     def test_three_orientations_and_error_legend_png(self):
         try:

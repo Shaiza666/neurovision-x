@@ -144,7 +144,17 @@ class SmokeCheckpointInferenceTests(unittest.TestCase):
         target = np.zeros(patch, dtype=np.int64)
         d, h, w = patch
         target[d // 4 : d // 2, h // 4 : h // 2, w // 4 : w // 2] = 1
-        result = run_inference(model, payload, image, target=target, compute_cam=True, class_index=3)
+        result = run_inference(
+            model,
+            payload,
+            image,
+            target=target,
+            compute_cam=True,
+            compute_occlusion=True,
+            compute_mc=True,
+            mc_samples=2,
+            class_index=3,
+        )
         self.assertTrue(result["smoke"])
         self.assertIn("SMOKE", result["status_banner"])
         self.assertEqual(tuple(result["prediction"].shape), tuple(patch))
@@ -156,6 +166,10 @@ class SmokeCheckpointInferenceTests(unittest.TestCase):
         self.assertGreater(result["elapsed_ms"], 0.0)
         self.assertGreater(result["n_params"], 0)
         self.assertIsNotNone(result["cam"])
+        self.assertIsNotNone(result["occlusion"])
+        self.assertEqual(tuple(result["occlusion"].shape), tuple(patch))
+        self.assertIsNotNone(result["mc_entropy"])
+        self.assertEqual(tuple(result["mc_entropy"].shape), tuple(patch))
         self.assertEqual(tuple(result["entropy"].shape), tuple(patch))
         self.assertNotIn("mock", result["status_banner"].lower())
         self.assertIsNotNone(result["scores"])
@@ -170,6 +184,8 @@ class SmokeCheckpointInferenceTests(unittest.TestCase):
         sidecar = json.loads(zipfile.ZipFile(BytesIO(zipped)).read("inference.json"))
         self.assertTrue(sidecar["smoke"])
         self.assertEqual(sidecar["n_params"], result["n_params"])
+        self.assertIn("occlusion_note", sidecar)
+        self.assertIn("mc_note", sidecar)
 
 
 if __name__ == "__main__":
