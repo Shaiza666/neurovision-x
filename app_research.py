@@ -446,6 +446,8 @@ def main() -> None:
         st.subheader("Uncertainty")
         st.caption(
             "Predictive entropy from the **same softmax** as the displayed labels (T=1). "
+            "MC dropout and flip TTA live in `neurovisionx.uncertainty` and "
+            "`scripts/analyze_reliability.py`; they are not run on this page. "
             "This is not voxel-wise error and not a clinical confidence score."
         )
         if "entropy" not in pack["axial"]:

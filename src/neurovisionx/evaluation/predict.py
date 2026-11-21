@@ -81,3 +81,34 @@ def infer_volume_mc(
         "entropy": entropy,
         "prediction": mean_probs.argmax(dim=0),
     }
+
+
+@torch.no_grad()
+def infer_volume_tta(
+    model: nn.Module,
+    volume: torch.Tensor,
+    patch_size: tuple[int, int, int],
+    overlap: float = 0.5,
+    max_views: int = 8,
+) -> dict[str, torch.Tensor]:
+    """Flip-TTA mean softmax and entropy on a full volume.
+
+    Each view is a spatial flip of the whole volume, then sliding-window
+    logits, then the inverse flip. Dropout stays off. Not a BraTS result.
+    """
+    if volume.ndim == 4:
+        volume = volume.unsqueeze(0)
+
+    def _window(flipped: torch.Tensor) -> torch.Tensor:
+        return sliding_window_logits(
+            model, flipped, patch_size, overlap=overlap, stochastic=False
+        )
+
+    from neurovisionx.uncertainty.tta import tta_stats
+
+    stats = tta_stats(model, volume, max_views=max_views, forward=_window)
+    return {
+        "mean_probs": stats["mean_probs"],
+        "entropy": stats["entropy"],
+        "prediction": stats["mean_probs"].argmax(dim=0),
+    }

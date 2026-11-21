@@ -52,7 +52,7 @@ Transformer variants (`unetr`, `swinunetr`) raise `NotImplementedError` until a 
 
 A4 reuses A0 weights. Reliability JSON, optional overlay PNGs, parameter counts, and wall-clock milliseconds are written next to the checkpoint. Smoke checkpoints are refused.
 
-The 3D U-Net implementation in `src/neurovisionx/models/unet3d.py` is unchanged. SE fusion is a wrapper (`fusion.py`). Attention U-Net is a separate class. Boundary classes and MC dropout are config flags.
+The 3D U-Net implementation in `src/neurovisionx/models/unet3d.py` is unchanged. SE fusion is a wrapper (`fusion.py`). Attention U-Net is a separate class. Boundary classes and MC dropout are config flags. Flip TTA (`training.uncertainty.method: tta`) is implemented in `src/neurovisionx/uncertainty/tta.py` and used by `analyze_reliability.py` when selected; it does not train and still requires official BraTS plus a non-smoke checkpoint.
 
 ## Phase 5 evaluation reports
 

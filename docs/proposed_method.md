@@ -106,6 +106,8 @@ Jungo et al. (2020) found **patient-aggregated** uncertainty more useful for det
 
 **What we test (H2).** On a frozen checkpoint, \(T=10\) vs \(T=1\): Spearman \(\rho\) between patient mean entropy (on WT-candidate voxels) and patient Dice; AUPRC for detecting the worst Dice quartile; ECE of \(\max_c \bar{p}_c\) vs correctness (Mehrtash et al., 2020). Config: `training.uncertainty.method`, `samples`.
 
+**TTA (implemented, optional).** `training.uncertainty.method: tta` averages softmax over up to eight spatial flips of the whole volume (depth / height / width), then unflips. Dropout stays off. This is standard test-time flipping, not a new augmenter. `scripts/analyze_reliability.py` uses TTA when that method is set; it still refuses smoke weights and missing BraTS. Default remains `mc_dropout`.
+
 This is **not** a clinical confidence score.
 
 ---

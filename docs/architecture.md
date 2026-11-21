@@ -67,7 +67,7 @@ Missing BraTS folders stop the patient path with `MissingBraTSDataError`. The UI
 | `losses/` | Soft Dice, inverse-frequency CE, Kervadec boundary |
 | `training/` | Engine, checkpoints, smoke loaders, curves |
 | `evaluation/` | Sliding-window inference, nested regions, metrics, cost |
-| `uncertainty/` | MC dropout, calibration tables |
+| `uncertainty/` | MC dropout, flip TTA, calibration tables |
 | `explainability/` | Grad-CAM, orthogonal views, overlays, 3D preview |
 | `experiments/` | Ablation catalog, result collection from JSON |
 | `demo/` | Checkpoint load, upload validation, dashboard inference |
@@ -79,5 +79,6 @@ The YOLOv8 detector lives in `neurovision_x/` (underscore) and `app.py`. It is a
 
 - UNETR / Swin UNETR (H3 deferred; factory raises `NotImplementedError`)
 - Automatic BraTS download
+- Patient-level H2 numbers (TTA and MC code exist; BraTS evaluation has not been run)
 - A clinical PACS / DICOM diagnostic workflow
 - Fabricated `metrics_test.json`

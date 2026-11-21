@@ -61,7 +61,11 @@ def main() -> None:
     try:
         import torch
         from neurovisionx.evaluation.cost import count_parameters, measure_gpu_memory, time_inference
-        from neurovisionx.evaluation.predict import infer_volume_mc, load_model_from_checkpoint
+        from neurovisionx.evaluation.predict import (
+            infer_volume_mc,
+            infer_volume_tta,
+            load_model_from_checkpoint,
+        )
         from neurovisionx.uncertainty.calibration import calibration_summary
         from neurovisionx.uncertainty.mc_dropout import patient_uncertainty_score
     except ImportError as exc:
@@ -75,6 +79,14 @@ def main() -> None:
         )
 
     samples = int(args.samples or config["training"]["uncertainty"].get("samples", 10))
+    from neurovisionx.uncertainty.tta import normalize_uncertainty_method
+
+    try:
+        uncertainty_method = normalize_uncertainty_method(
+            config["training"]["uncertainty"].get("method", "mc_dropout")
+        )
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from exc
     patch = tuple(int(v) for v in config["training"]["schedule"]["patch_size"])
     overlap = float(config["training"]["schedule"].get("infer_overlap", 0.5))
 
@@ -107,7 +119,7 @@ def main() -> None:
         image = zscore_channels(np.stack(channels, axis=0))
         target = remap_seg(load_nifti(files["seg"]))
         volume = torch.from_numpy(np.ascontiguousarray(image)).unsqueeze(0).to(device)
-        if samples <= 1:
+        if samples <= 1 or uncertainty_method == "none":
             from neurovisionx.evaluation.inference import sliding_window_logits
             from neurovisionx.uncertainty.mc_dropout import predictive_entropy
 
@@ -116,6 +128,13 @@ def main() -> None:
             entropy = predictive_entropy(probs).cpu()
             pred = probs.argmax(dim=0).cpu().numpy()
             probs_np = probs.detach().cpu().numpy()
+        elif uncertainty_method == "tta":
+            tta = infer_volume_tta(
+                model, volume, patch, overlap=overlap, max_views=samples
+            )
+            pred = tta["prediction"].cpu().numpy()
+            entropy = tta["entropy"].cpu()
+            probs_np = tta["mean_probs"].cpu().numpy()
         else:
             mc = infer_volume_mc(model, volume, patch, overlap=overlap, samples=samples)
             pred = mc["prediction"].cpu().numpy()

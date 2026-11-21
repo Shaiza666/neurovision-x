@@ -173,6 +173,52 @@ class McDropoutAndCostTests(unittest.TestCase):
         self.assertIn("mean_ms", timed)
         self.assertGreaterEqual(timed["mean_ms"], 0.0)
 
+    def test_tta_identity_matches_eval_softmax(self):
+        try:
+            import torch
+        except ImportError:
+            self.skipTest("torch not installed")
+        from neurovisionx.evaluation.predict import infer_volume_tta
+        from neurovisionx.models.factory import build_model
+        from neurovisionx.uncertainty.tta import (
+            apply_flips,
+            normalize_uncertainty_method,
+            tta_stats,
+        )
+
+        self.assertEqual(normalize_uncertainty_method("flip-tta"), "tta")
+        self.assertEqual(normalize_uncertainty_method("none"), "none")
+        with self.assertRaises(ValueError):
+            normalize_uncertainty_method("ensemble")
+
+        model = build_model(
+            {
+                "name": "unet3d",
+                "in_channels": 4,
+                "out_channels": 4,
+                "features": [8, 16],
+                "dropout": 0.0,
+                "optional_monai": False,
+                "fusion": "early",
+            }
+        )
+        model.eval()
+        volume = torch.randn(1, 4, 16, 16, 16)
+        with torch.no_grad():
+            baseline = torch.softmax(model(volume), dim=1)[0]
+        stats = tta_stats(model, volume, max_views=1)
+        self.assertTrue(torch.allclose(stats["mean_probs"], baseline, atol=1e-5))
+        self.assertEqual(tuple(stats["entropy"].shape), (16, 16, 16))
+        self.assertTrue(torch.all(stats["mean_probs"].sum(dim=0) > 0.99))
+
+        flipped = apply_flips(volume, (3,))
+        restored = apply_flips(flipped, (3,))
+        self.assertTrue(torch.equal(restored, volume))
+
+        tta = infer_volume_tta(model, volume, (16, 16, 16), overlap=0.0, max_views=2)
+        self.assertEqual(tuple(tta["prediction"].shape), (16, 16, 16))
+        self.assertEqual(tuple(tta["mean_probs"].shape), (4, 16, 16, 16))
+
     def test_overlay_writes_png(self):
         try:
             import matplotlib  # noqa: F401
