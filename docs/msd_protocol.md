@@ -91,4 +91,12 @@ A0 is the 3D U-Net. A2 is the Attention U-Net. A5 adds the SE stem, the Kervadec
 
 ## Weights
 
-Checkpoints stay in `experiments/<run>/best.pt` and are gitignored. `scripts/fetch_checkpoints.py` reads `configs/checkpoints.yaml`. Until a URL is filled in, that script prints the commands above and does not pretend a release exists.
+The trained `best.pt` files are GitHub Release assets, tag `v0.1-msd-cpu`:
+
+https://github.com/Shaiza666/neurovision-x/releases/tag/v0.1-msd-cpu
+
+```bash
+python scripts/fetch_checkpoints.py
+```
+
+The script downloads each URL in `configs/checkpoints.yaml` to `experiments/<run>/best.pt` and deletes the file if the SHA-256 does not match. They are not committed as git blobs. They are not a clinically validated system. Training commands above reproduce the same protocol if you do not want the published weights.
