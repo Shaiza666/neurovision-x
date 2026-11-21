@@ -1,69 +1,175 @@
 # NeuroVision-X
 
-Reproducible **3D glioma MRI segmentation** research stack (PyTorch / MONAI), plus a preserved local **YOLOv8n** detector.
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.x-EE4C2C?logo=pytorch&logoColor=white)](https://pytorch.org/)
+[![MONAI](https://img.shields.io/badge/MONAI-optional-0F766E)](https://monai.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-1F2937.svg)](LICENSE)
+[![Tests](https://img.shields.io/badge/unit_tests-116_collected-0F766E)](tests/)
+[![Release](https://img.shields.io/badge/package-v0.9.0-334155)](https://github.com/Shaiza666/neurovision-x)
 
-[Documentation](docs/README.md) · [Dataset](docs/dataset.md) · [Training](docs/training.md) · [Evaluation](docs/evaluation.md) · [Research report](docs/research_report.md) · [Architecture](docs/architecture.md)
+**Reproducible 3D glioma MRI segmentation research software** (PyTorch / MONAI), plus a preserved local YOLOv8n detector.
 
-**This software is an experimental research prototype. It is not a clinically validated diagnostic system. Do not use it for diagnosis or treatment decisions.**
+[Documentation](docs/README.md) · [Research report](docs/research_report.md) · [Architecture](docs/architecture.md) · [Dataset guide](docs/dataset.md) · [Training](docs/training.md) · [Evaluation](docs/evaluation.md) · [Slides](docs/presentation.md)
 
-It is **not** a published paper. No conference acceptance, award, or BraTS leaderboard entry is claimed.
+> **Research prototype — not a clinically validated diagnostic system.**  
+> Do not use these outputs for diagnosis or treatment. This repository is **not** a published paper. No conference acceptance, award, or BraTS leaderboard entry is claimed.
 
-## Status (honest)
+---
+
+## Contents
+
+- [Overview](#overview)
+- [Current status](#current-status)
+- [Research objectives](#research-objectives)
+- [Key features](#key-features)
+- [Architecture](#architecture)
+- [Technical workflow](#technical-workflow)
+- [Technology stack](#technology-stack)
+- [Repository layout](#repository-layout)
+- [Installation](#installation)
+- [Dashboards](#dashboards)
+- [Testing](#testing)
+- [Documentation map](#documentation-map)
+- [Limitations](#limitations)
+- [Future work](#future-work)
+- [Citation and license](#citation-and-license)
+- [Author](#author)
+
+---
+
+## Overview
+
+NeuroVision-X is a **matched, config-driven protocol** for 3D glioma sub-region segmentation on co-registered T1, T1ce, T2, and FLAIR MRI. The stack implements established methods only: 3D U-Net, Attention U-Net, optional Squeeze-and-Excitation fusion, a Kervadec boundary term on enhancing tumor (ET), Monte Carlo dropout, flip test-time augmentation, nested WT / TC / ET metrics, calibration scores, and Grad-CAM / occlusion overlays.
+
+The intended scientific contribution is the **joint reliability study** (hypotheses H1–H2) on **licensed BraTS** data. That study **has not been run**. Official volumes are not in this tree. A preserved YOLOv8n Streamlit app lives beside the 3D research path and is **not** a glioma segmenter.
+
+Full abstract: [`docs/abstract.md`](docs/abstract.md).
+
+---
+
+## Current status
 
 | Item | State in this repository |
 | --- | --- |
 | Official BraTS NIfTI | **Absent** (`data/raw/brats/` is a README) |
-| BraTS A / B / C Dice, HD95, ECE | **Not measured** |
+| WT / TC / ET Dice, HD95, ECE on patients | **Not measured** |
 | Ablations A0–A5 on patients | **Not trained** |
 | Hypotheses H1 / H2 | **Untested** |
-| H3 (CNN vs transformer) | **Deferred** (`cuda: false` on the recorded machine) |
-| Smoke job (random tensors) | 2 epochs, CPU, PyTorch 2.15.0+cpu — **not research** |
-| Unit tests | 116 collected |
-| Research dashboard | `app_research.py` — real checkpoints only |
+| H3 (CNN vs transformer) | **Deferred** (CPU-only machine recorded; `unetr` raises `NotImplementedError`) |
+| Smoke job | 2 epochs on **random tensors**, CPU — **not research** |
+| Unit tests | **116 collected** (115 passed, 1 skipped when MONAI is installed) |
+| Research UI | `app_research.py` — real checkpoint forward only |
+| YOLO UI | `app.py` — preserved 2D detector demo |
 
 Details: [`docs/experimental_results.md`](docs/experimental_results.md).
 
-## Abstract
+---
 
-NeuroVision-X implements a **matched protocol** for 3D U-Net and Attention U-Net, optional Squeeze-and-Excitation fusion, a Kervadec boundary term on enhancing tumor, Monte Carlo dropout, nested WT/TC/ET metrics, calibration scores, and Grad-CAM overlays. Every modelling piece is an **established** method. The intended scientific contribution is the joint reliability study on licensed BraTS data — a study that **has not been run**, because official volumes are not in this tree. Full abstract: [`docs/abstract.md`](docs/abstract.md).
+## Research objectives
+
+| ID | Question | Status |
+| --- | --- | --- |
+| **H1** | Does an ET boundary term reduce ET HD95 vs matched Dice+CE without a Dice drop beyond a 1-point margin? | Protocol coded; **no BraTS result** |
+| **H2** | Does patient-level MC / TTA entropy detect failed cases better than voxel maps? | Code exists; **untested on patients** |
+| **H3** | Is a matched 3D U-Net competitive with UNETR / Swin UNETR at similar compute? | **Deferred** until a GPU comparison is approved |
+
+All modelling blocks are **established methods**. Novelty, if any, would be the controlled protocol and the measurements it produces after licensed data and protocol approval.
+
+---
+
+## Key features
+
+| Area | Implemented |
+| --- | --- |
+| **Data** | BraTS 2021 / 2023 filename tokens, RAS + 1 mm resample, non-zero z-score, patient-level splits, leakage checks. Missing modalities are errors, not zeros. |
+| **Models** | In-repo 3D U-Net and Attention U-Net; optional SE stem; optional MONAI nets; factory-driven YAML. |
+| **Training** | AdamW, AMP when CUDA exists, early stopping, resume, `best.pt` / `latest.pt`, optional plateau scheduler. Official jobs **refuse** without BraTS. |
+| **Metrics** | Nested WT / TC / ET Dice, HD95, precision, sensitivity, specificity, ECE, NLL, Brier, mean ± std and t-intervals, CSV + JSON. |
+| **Uncertainty** | MC dropout and flip TTA; patient-level aggregation for H2. |
+| **Explainability** | 3D Grad-CAM, occlusion, orthogonal overlays. Not clinical explanations. |
+| **Apps** | Research dashboard (`app_research.py`) and YOLO detector (`app.py`). |
+| **Honesty gates** | Smoke folders never fill A/B/C tables. `MissingBraTSDataError` instead of fake MRI. |
+
+---
 
 ## Architecture
 
-The figure below is the **implemented** research workflow. It is not a claim that BraTS training or evaluation has been run.
+The figure documents the **implemented** research workflow. It is not a claim that BraTS training has been run.
 
 ![NeuroVision-X implemented research pipeline](assets/architecture.png)
 
-Module map: [`docs/architecture.md`](docs/architecture.md).
-
-## MRI examples
-
-Official BraTS NIfTI volumes are **not** in this repository (`data/raw/brats/` is a README only). The pipeline expects four co-registered channels: T1, T1ce, T2, and FLAIR. **No genuine patient MRI is shown here**, because none is stored in git.
-
-![Expected MRI input channels — empty placeholders, not scans](assets/mri_input_layout.png)
-
-## Model architecture
-
-Baseline backbone: **3D U-Net** (Çiçek et al., 2016) as implemented in `src/neurovisionx/models/unet3d.py`, with `in_channels=4`, `out_channels=4` (background, NCR, ED, ET), and YAML features `[16, 32, 64, 128]`. Attention U-Net and an optional SE stem are config alternatives. This figure documents the **code**, not a trained BraTS model.
+Baseline backbone: **3D U-Net** (Çiçek et al., 2016) in `src/neurovisionx/models/unet3d.py` — 4 MRI channels, 4 classes (background, NCR, ED, ET), YAML features `[16, 32, 64, 128]`. Attention U-Net and an SE stem are config alternatives.
 
 ![Implemented 3D U-Net from configs/model.yaml](assets/model_architecture.png)
 
-A smoke checkpoint trained on **random tensors** (2 epochs, CPU, features `[8, 16]`) may exist locally. That is a software check, not this architecture trained on MRI.
+Module map: [`docs/architecture.md`](docs/architecture.md).
 
-## Segmentation results
+Official BraTS NIfTI is **not** stored in git. The loader expects four co-registered channels. Empty panels below are **placeholders**, not scans.
 
-No BraTS-trained 3D U-Net checkpoint is in this tree. Patient-level Dice, HD95, and ECE have **not been measured**. Segmentation overlays on real MRI are therefore **omitted** rather than simulated.
+![Expected MRI input channels — empty placeholders, not scans](assets/mri_input_layout.png)
 
-| Comparison | Dice WT | Dice TC | Dice ET | HD95 | ECE |
-| --- | --- | --- | --- | --- | --- |
-| A 3D U-Net | not measured | not measured | not measured | not measured | not measured |
-| B Attention U-Net | not measured | not measured | not measured | not measured | not measured |
-| C SE + ET boundary + MC | not measured | not measured | not measured | not measured | not measured |
+---
 
-Smoke (random tensors, 2 epochs, CPU): synthetic val Dice WT/TC/ET ≈ 0.034 / 0.024 / 0.001. That is **not** a challenge score and is not an MRI prediction. Details: [`docs/experimental_results.md`](docs/experimental_results.md).
+## Technical workflow
+
+GitHub-safe Mermaid (no HTML in nodes). Licensed NIfTI is an **input the user must provide**; it is not bundled.
+
+```mermaid
+flowchart LR
+  subgraph ingest [Data]
+    A[NIfTI on disk]
+    B[Validate inventory]
+    C[Patient-level splits]
+    D[RAS 1mm z-score patches]
+  end
+  subgraph model [Models]
+    E[3D U-Net]
+    F[Attention U-Net]
+    G[Optional SE stem]
+  end
+  subgraph run [Train and eval]
+    H[Engine AMP checkpoints]
+    I[WT TC ET Dice HD95 ECE]
+    J[MC dropout or TTA]
+    K[Grad-CAM occlusion]
+  end
+  subgraph apps [Interfaces]
+    L[app_research.py]
+    M[app.py YOLO]
+  end
+  A --> B --> C --> D
+  D --> E
+  D --> F
+  G --> E
+  E --> H
+  F --> H
+  H --> I
+  H --> J
+  H --> K
+  H --> L
+```
+
+Missing BraTS folders stop the patient path with `MissingBraTSDataError`. The research UI never invents logits. YOLO (`app.py`) is a separate 2D demo and is not on this path.
+
+---
+
+## Technology stack
+
+| Layer | Tools |
+| --- | --- |
+| Language | Python ≥ 3.10 (developed on 3.12.10) |
+| 3D research | PyTorch, MONAI (optional), NiBabel, SciPy, Matplotlib |
+| Apps | Streamlit, OpenCV, ONNX Runtime |
+| Config | YAML (`configs/`) |
+| Tests | `unittest` (`tests/`) |
+
+Package `neurovisionx` **0.9.0** lives under `src/`. The YOLO package is `neurovision_x/` (underscore) at the repo root.
+
+---
 
 ## Repository layout
 
-```
+```text
 assets/            README diagrams (no patient MRI)
 configs/           data, model, training, ablations, evaluation YAML
 data/              raw / processed / splits (no NIfTI in git)
@@ -78,9 +184,11 @@ scripts/           train, evaluate, explain, collect_results, …
 tests/
 ```
 
+---
+
 ## Installation
 
-Python ≥ 3.10 (developed on 3.12.10). Full guide: [`docs/installation.md`](docs/installation.md).
+Python ≥ 3.10. Full guide: [`docs/installation.md`](docs/installation.md).
 
 ```powershell
 git clone https://github.com/Shaiza666/neurovision-x.git
@@ -89,32 +197,79 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\python -m pip install --upgrade pip
 .\.venv\Scripts\python -m pip install -e ".[research]"
 .\.venv\Scripts\python -m pip install -e ".[app]"
-.\.venv\Scripts\python -m unittest
+.\.venv\Scripts\python -m unittest discover -s tests
 ```
 
-## Usage
+Hardware check (does not train):
 
-**Research dashboard** (predictions come only from a loaded `.pt`; no mock logits):
+```powershell
+.\.venv\Scripts\python scripts\check_resources.py
+```
+
+---
+
+## Dashboards
+
+### Research demo (3D U-Net)
+
+Predictions come only from a loaded `.pt`. No mock logits.
 
 ```powershell
 .\.venv\Scripts\python -m streamlit run app_research.py
 ```
 
-If only the smoke checkpoint exists, use the labelled **interface test** (random tensor + real smoke weights). That is not MRI.
+If only `experiments/smoke/` exists, use the labelled **interface test** (random tensor + real smoke weights). That is **not MRI**.
 
-**YOLOv8 detector** (unchanged 2D demo):
+Guide: [`docs/demo.md`](docs/demo.md). Walkthrough: [`docs/demo_script.md`](docs/demo_script.md).
+
+**Layout demo (random tensors, not a patient):**
+
+![Synthetic overlay layout — not MRI, not research](docs/figures/explain_synthetic_not_mri/orthogonal_overlay.png)
+
+### YOLO detector (2D, preserved)
 
 ```powershell
 .\.venv\Scripts\python -m streamlit run app.py
 ```
 
-**Smoke training** (software check, not BraTS):
+This path does not compute WT / TC / ET Dice.
+
+### Capture still needed
+
+Live Streamlit screenshots of `app_research.py` and `app.py` are **not** in git. After a local run, save honest captures (with the smoke / not-clinical banner visible) under `docs/figures/dashboards/` if you want them on GitHub. Do not screenshot fabricated MRI.
+
+---
+
+## Testing
+
+Last verified locally: **116 collected**, **115 passed**, **1 skipped** (`test_missing_monai_is_explicit` when MONAI is installed), **0 failed**.
 
 ```powershell
-.\.venv\Scripts\python scripts\smoke_train.py
+.\.venv\Scripts\python -m unittest discover -s tests
 ```
 
-**BraTS path** — exits until licensed volumes sit under `data/raw/brats/` **and** [`docs/experimental_protocol.md`](docs/experimental_protocol.md) is approved:
+Fixtures use synthetic tensors or tiny NIfTI — **not** medical data.
+
+There is no GitHub Actions workflow in this repository; the test badge is the last local count, not live CI.
+
+---
+
+## Documentation map
+
+| Topic | File |
+| --- | --- |
+| Index | [docs/README.md](docs/README.md) |
+| Report | [docs/research_report.md](docs/research_report.md) |
+| Dataset (Synapse; no auto-download) | [docs/dataset.md](docs/dataset.md) |
+| Train / eval | [docs/training.md](docs/training.md), [docs/evaluation.md](docs/evaluation.md) |
+| Protocol | [docs/experimental_protocol.md](docs/experimental_protocol.md) |
+| Hypotheses | [docs/research_hypotheses.md](docs/research_hypotheses.md) |
+| Reproducibility | [docs/reproducibility.md](docs/reproducibility.md) |
+| References | [docs/references.md](docs/references.md) |
+| Slides | [docs/presentation.md](docs/presentation.md) |
+| Portfolio | [docs/portfolio_summary.md](docs/portfolio_summary.md) |
+
+BraTS training (exits until licensed NIfTI **and** protocol approval):
 
 ```powershell
 .\.venv\Scripts\python scripts\validate_dataset.py
@@ -125,26 +280,32 @@ If only the smoke checkpoint exists, use the labelled **interface test** (random
 .\.venv\Scripts\python scripts\collect_results.py
 ```
 
-Reproducibility notes: [`docs/reproducibility.md`](docs/reproducibility.md). Demonstration walkthrough: [`docs/demo_script.md`](docs/demo_script.md).
+---
 
-## Documentation
+## Limitations
 
-| Topic | File |
-| --- | --- |
-| Full report (intro → conclusion) | [docs/research_report.md](docs/research_report.md) |
-| Abstract | [docs/abstract.md](docs/abstract.md) |
-| Related work | [docs/literature_review.md](docs/literature_review.md) |
-| Gap and hypotheses | [docs/research_gap.md](docs/research_gap.md), [docs/research_hypotheses.md](docs/research_hypotheses.md) |
-| Mathematics | [docs/proposed_method.md](docs/proposed_method.md), [docs/metrics.md](docs/metrics.md) |
-| Protocol | [docs/experimental_protocol.md](docs/experimental_protocol.md) |
-| Architecture | [docs/architecture.md](docs/architecture.md) |
-| Install / reproduce | [docs/installation.md](docs/installation.md), [docs/reproducibility.md](docs/reproducibility.md) |
-| References (IEEE) | [docs/references.md](docs/references.md) |
-| Slides / demo script | [docs/presentation.md](docs/presentation.md), [docs/demo_script.md](docs/demo_script.md) |
-| Portfolio summary | [docs/portfolio_summary.md](docs/portfolio_summary.md) |
-| Index of all docs | [docs/README.md](docs/README.md) |
+- Not a diagnostic device; Grad-CAM and entropy maps are research QC, not clinical explanations.
+- No official BraTS volumes in git; challenge metrics are **not measured**.
+- Smoke Dice on random cubes is **not** a BraTS score (see experimental results if a local smoke job exists).
+- H3 transformers are unimplemented until a matched GPU protocol is approved.
+- YOLO is a separate 2D demo, not glioma segmentation.
 
-## License and citation
+---
+
+## Future work
+
+1. Accept the BraTS / Synapse license and unpack glioma NIfTI under `data/raw/brats/` ([dataset guide](docs/dataset.md)).
+2. Freeze patient splits; approve [`docs/experimental_protocol.md`](docs/experimental_protocol.md).
+3. Train **A0** on a CUDA machine (≥16 GB RAM recommended), then evaluate and run H2 (A4) on A0 weights.
+4. Train **A3** for H1 if compute remains; then A1 / A2 / A5.
+5. Revisit H3 only under a matched GPU budget.
+6. Optional: capture labelled dashboard screenshots for this README.
+
+Negative H1 / H2 outcomes will be reported if those jobs run. They will not be invented.
+
+---
+
+## Citation and license
 
 MIT. See [LICENSE](LICENSE). Cite the **software repository**, not a fictional article:
 
@@ -159,3 +320,10 @@ MIT. See [LICENSE](LICENSE). Cite the **software repository**, not a fictional a
 ```
 
 Also [CITATION.cff](CITATION.cff).
+
+---
+
+## Author
+
+**Shaiza Asghar** ([Shaiza666](https://github.com/Shaiza666))  
+Repository: [https://github.com/Shaiza666/neurovision-x](https://github.com/Shaiza666/neurovision-x)

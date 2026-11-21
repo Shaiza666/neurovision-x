@@ -2,6 +2,8 @@
 
 **NeuroVision-X is an experimental research prototype, not a clinically validated diagnostic system.**
 
+**Start here:** repository [README](../README.md) (status, install, dashboards) → [dataset.md](dataset.md) (Synapse; no auto-download) → [training.md](training.md) / [evaluation.md](evaluation.md) → [research_report.md](research_report.md).
+
 Phase 8 portfolio pack (numbers match the documentation checklist):
 
 1. GitHub README — repository root `README.md`
