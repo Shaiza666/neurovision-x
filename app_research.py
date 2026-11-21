@@ -111,6 +111,16 @@ def _reference_figures() -> None:
             FIGURES_DIR / "smoke_not_research_curves.png",
             "Smoke training curves on random tensors. Not BraTS scores.",
         )
+    msd_dir = FIGURES_DIR / "msd_cpu"
+    if msd_dir.is_dir() and any(msd_dir.glob("*.png")):
+        st.markdown("#### Measured MSD Task01 figures (reduced CPU protocol)")
+        st.caption(
+            "These PNGs were written from MSD Task01 checkpoints. "
+            "They are not official BraTS 2021+ and not a clinical result. "
+            "See docs/msd_protocol.md."
+        )
+        for path in sorted(msd_dir.glob("*.png")):
+            _show_png(path, path.name)
 
 
 def _overlay_mri_pred(mri: np.ndarray, pred_rgb: np.ndarray, alpha: float = 0.45) -> np.ndarray:
@@ -141,10 +151,10 @@ def _header() -> None:
 def _sidebar_checkpoint():
     st.sidebar.header("Checkpoint")
     checkpoints = list_demo_checkpoints()
-    has_brats_trained = any(not row.get("smoke") for row in checkpoints)
-    if not has_brats_trained:
+    has_real = any(not row.get("smoke") for row in checkpoints)
+    if not has_real:
         st.sidebar.error(
-            "No BraTS-trained 3D U-Net checkpoint exists on disk. "
+            "No non-smoke 3D checkpoint exists on disk. "
             "This UI will not invent predictions or metrics."
         )
     if not checkpoints:
@@ -163,7 +173,10 @@ def _sidebar_checkpoint():
             "They are not a BraTS-trained U-Net."
         )
     else:
-        st.sidebar.info("Non-smoke checkpoint on disk. Still not a clinical diagnostic system.")
+        st.sidebar.info(
+            "Non-smoke checkpoint on disk. Read its metadata for the dataset "
+            "(MSD Task01 is not official BraTS). Not a clinical diagnostic system."
+        )
     st.sidebar.header("Inference")
     class_index = st.sidebar.selectbox(
         "Grad-CAM class",
@@ -265,7 +278,7 @@ def main() -> None:
 
     if selected is None:
         st.error(
-            "No BraTS-trained 3D U-Net checkpoint exists on disk. "
+            "No non-smoke 3D checkpoint exists on disk. "
             "This experimental research demo will not show fake predictions or metrics."
         )
         st.stop()
@@ -283,7 +296,6 @@ def main() -> None:
     st.sidebar.caption("Predictions come from this file's `state_dict`. The UI never invents logits.")
     if selected.get("smoke"):
         st.warning(
-            "No BraTS-trained 3D U-Net checkpoint exists on disk. "
             "The loaded weights are a synthetic smoke run (random tensors), not glioma MRI results. "
             "Region Dice appears only if you upload a ground-truth segmentation."
         )

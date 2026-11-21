@@ -47,11 +47,11 @@ That command trains on **random tensors**. Say so when you show it.
 | 9:00 | Metrics & export | Download ZIP if needed. Sidecar repeats the disclaimer. |
 | 9:30 | Optional YOLO tab | `app.py` on a photo. “Preserved 2D detector; not glioma MRI.” |
 | 10:30 | Tests / code | `src/neurovisionx/` modules; `configs/ablations.yaml` A0–A5. |
-| 11:30 | Close | What exists: protocol + software. What does not: BraTS Dice. Next step: licensed data + approved A0 run. |
+| 11:30 | Close | What exists: software plus a reduced MSD CPU measurement. What does not: official BraTS Dice. |
 
 ## If someone asks for “the accuracy”
 
-> We have not trained on official BraTS. The A/B/C table is explicitly **not measured**. The smoke Dice of about 0.03 WT on random cubes is a software check and is not a challenge score.
+> We have not trained on official BraTS. The measured A/B/C numbers are a reduced MSD Task01 CPU run (see the README table). They are not a challenge score. Smoke Dice on random tensors is a software check.
 
 ## If someone asks to upload a hospital scan
 

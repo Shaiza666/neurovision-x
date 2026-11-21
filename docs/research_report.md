@@ -5,7 +5,7 @@ Software version 0.9.0 · repository [https://github.com/Shaiza666/neurovision-x
 
 **This software is an experimental research prototype. It is not a clinically validated diagnostic system. Do not use these outputs for diagnosis or treatment decisions.**
 
-**Empirical status (this repository):** no official BraTS volumes are present. No non-smoke `metrics_test.json` exists. BraTS Dice, HD95, ECE, and ablation tables are **not measured**. One synthetic smoke job was run for software verification only. This document is **not** a published paper and claims no conference or journal acceptance.
+**Empirical status (this repository):** official BraTS / Synapse volumes are absent. A reduced CPU experiment on MSD Task01 (not official BraTS) measured A/B/C Dice, HD95, and ECE; see §8 and [experimental_results.md](experimental_results.md). Component ablations and extra seeds are **not measured**. This document is **not** a published paper and claims no conference or journal acceptance.
 
 ---
 
@@ -13,7 +13,7 @@ Software version 0.9.0 · repository [https://github.com/Shaiza666/neurovision-x
 
 Automatic glioma sub-region segmentation on co-registered T1, T1ce, T2, and FLAIR MRI is a standard 3D computer-vision task, but overlap-centric training can leave large surface errors on enhancing tumor, and softmax confidence is often poorly calibrated at the patient level. NeuroVision-X is a **reproducible research stack** that implements a matched protocol for 3D U-Net and Attention U-Net, optional Squeeze-and-Excitation fusion, a Kervadec boundary term on enhancing tumor, Monte Carlo dropout, nested WT/TC/ET metrics, calibration scores, and Grad-CAM overlays. All modelling components are **established methods**. The intended contribution is the joint protocol and the empirical evidence that protocol would produce on licensed BraTS data.
 
-That evidence is **not yet available**. Dataset scripts and `scripts/train.py` exit with `MissingBraTSDataError` until official patient folders exist under `data/raw/brats/`. The only completed training job is a two-epoch smoke run on random tensors (CPU, CUDA unavailable). Those losses and Dice values are excluded from research tables. Hypotheses H1–H3 remain open. H3 (CNN vs transformer) is deferred for lack of a matched GPU comparison.
+Official BraTS evidence is still unavailable: default training exits until `data/raw/brats/` contains licensed volumes. What was measured is the reduced MSD CPU protocol in [msd_protocol.md](msd_protocol.md). Hypotheses H1 and H2 were not isolated on that run. H3 (CNN vs transformer) stays deferred (no GPU).
 
 ---
 
@@ -159,23 +159,22 @@ Phase 5 comparison: **A** = A0, **B** = A2, **C** = A5. Component ablations reus
 
 ## 8. Results and discussion
 
-Source: [experimental_results.md](experimental_results.md), generated from on-disk JSON (`2026-11-17T12:22:45Z`). Missing cells stay **not measured**.
+Source: [experimental_results.md](experimental_results.md), generated from on-disk JSON. Official BraTS cells stay **not measured**. The table below is the reduced MSD CPU test split only.
 
-### 8.1 Official BraTS comparison
+### 8.1 MSD Task01, reduced CPU protocol (not official BraTS)
 
-Research-eligible test evaluations (non-smoke `metrics_test.json`): **0**.
+12 test patients, seed 2026, 2 mm voxels, 96³. HD95 is in those voxels. C uses MC dropout T=10. Formatting matches `format_summary` (3 decimal places).
 
 | Metric | A: 3D U-Net | B: Attention U-Net | C: SE + ET boundary + MC |
 | --- | --- | --- | --- |
-| Dice WT / TC / ET | not measured | not measured | not measured |
-| HD95 WT / TC / ET | not measured | not measured | not measured |
-| Precision / recall ET | not measured | not measured | not measured |
-| ECE, Brier | not measured | not measured | not measured |
-| Small-ET Dice | not measured | not measured | not measured |
-| Spearman ρ, AUPRC | not measured | not measured | not measured |
-| Latency, GPU MB | not measured | not measured | not measured |
+| Dice WT | 0.528 ± 0.238 [0.377, 0.679] (n=12) | 0.662 ± 0.190 [0.541, 0.783] (n=12) | 0.690 ± 0.154 [0.592, 0.788] (n=12) |
+| Dice TC | 0.583 ± 0.202 [0.454, 0.711] (n=12) | 0.729 ± 0.149 [0.634, 0.824] (n=12) | 0.740 ± 0.143 [0.650, 0.831] (n=12) |
+| Dice ET | 0.464 ± 0.281 [0.285, 0.642] (n=12) | 0.680 ± 0.257 [0.517, 0.843] (n=12) | 0.638 ± 0.253 [0.477, 0.799] (n=12) |
+| HD95 ET (voxels) | 31.378 ± 10.962 [24.014, 38.742] (n=11) | 7.933 ± 11.982 [-0.117, 15.983] (n=11) | 4.441 ± 6.099 [0.344, 8.539] (n=11) |
+| ECE | 0.109 ± 0.014 [0.100, 0.118] (n=12) | 0.075 ± 0.005 [0.073, 0.078] (n=12) | 0.081 ± 0.004 [0.079, 0.083] (n=12) |
+| Brier | 0.066 ± 0.017 [0.055, 0.077] (n=12) | 0.041 ± 0.008 [0.036, 0.046] (n=12) | 0.040 ± 0.006 [0.036, 0.044] (n=12) |
 
-**Discussion.** There is no empirical basis to say the proposed combination is more accurate, better calibrated, or faster than the baseline. Any such sentence would be fabrication.
+**Discussion.** On this one split, Attention U-Net has the highest ET Dice and the proposed combination has the lowest ET HD95 in voxels. That is not a general claim that C is more accurate, better calibrated, or appropriate for clinical use. C's Spearman ρ is +0.210 (p=0.513). H1 and H2 are not isolated because C changes fusion, loss, and test-time dropout together, and A1/A3/A4 were not trained. The 50-epoch 1 mm BraTS protocol was not run.
 
 ### 8.2 Software verification (not research)
 

@@ -32,9 +32,11 @@ from neurovisionx.explainability.panel import softmax_entropy, write_explain_pan
 from neurovisionx.explainability.views import ORIENTATION_AXIS, ORIENTATION_ORDER, extract_slice
 from neurovisionx.uncertainty.mc_dropout import mc_dropout_stats
 
-CAM_VOXEL_LIMIT = 48 ** 3
+# 96³ matches the reduced MSD CPU volumes. Occlusion stays smaller: it repeats
+# a forward for every cube and is too slow on a full 96³ CPU volume.
+CAM_VOXEL_LIMIT = 96 ** 3
 OCCLUSION_VOXEL_LIMIT = 24 ** 3
-MC_VOXEL_LIMIT = 48 ** 3
+MC_VOXEL_LIMIT = 96 ** 3
 
 
 def _normalize_map(tensor: torch.Tensor) -> np.ndarray:

@@ -1,0 +1,2423 @@
+{
+  "dataset": "MSD Task01_BrainTumour (CC-BY-SA 4.0), not official BraTS 2021+",
+  "source_split": "/workspace/data/splits/msd_task01_patients.json",
+  "seed": 2026,
+  "full_split_counts": {
+    "train": 339,
+    "val": 48,
+    "test": 97
+  },
+  "subset_counts": {
+    "train": 48,
+    "val": 8,
+    "test": 12
+  },
+  "subset_rule": "prefix of the seeded split lists; not a new shuffle",
+  "train_ids": [
+    "BRATS_083",
+    "BRATS_213",
+    "BRATS_272",
+    "BRATS_125",
+    "BRATS_464",
+    "BRATS_440",
+    "BRATS_209",
+    "BRATS_176",
+    "BRATS_322",
+    "BRATS_445",
+    "BRATS_400",
+    "BRATS_334",
+    "BRATS_410",
+    "BRATS_386",
+    "BRATS_357",
+    "BRATS_314",
+    "BRATS_184",
+    "BRATS_020",
+    "BRATS_022",
+    "BRATS_011",
+    "BRATS_032",
+    "BRATS_472",
+    "BRATS_030",
+    "BRATS_395",
+    "BRATS_309",
+    "BRATS_221",
+    "BRATS_466",
+    "BRATS_278",
+    "BRATS_019",
+    "BRATS_096",
+    "BRATS_203",
+    "BRATS_404",
+    "BRATS_122",
+    "BRATS_423",
+    "BRATS_454",
+    "BRATS_192",
+    "BRATS_177",
+    "BRATS_248",
+    "BRATS_403",
+    "BRATS_113",
+    "BRATS_098",
+    "BRATS_010",
+    "BRATS_064",
+    "BRATS_195",
+    "BRATS_219",
+    "BRATS_111",
+    "BRATS_312",
+    "BRATS_155"
+  ],
+  "val_ids": [
+    "BRATS_255",
+    "BRATS_262",
+    "BRATS_239",
+    "BRATS_249",
+    "BRATS_134",
+    "BRATS_103",
+    "BRATS_185",
+    "BRATS_251"
+  ],
+  "test_ids": [
+    "BRATS_422",
+    "BRATS_026",
+    "BRATS_067",
+    "BRATS_476",
+    "BRATS_295",
+    "BRATS_448",
+    "BRATS_266",
+    "BRATS_435",
+    "BRATS_246",
+    "BRATS_289",
+    "BRATS_471",
+    "BRATS_133"
+  ],
+  "spacing_mm": [
+    2.0,
+    2.0,
+    2.0
+  ],
+  "grid": [
+    96,
+    96,
+    96
+  ],
+  "affine": "diag(spacing); not the original scanner pose",
+  "crop": "RAS + resample to spacing + foreground crop (margin 2) + center on tumor (or foreground) into grid",
+  "mean_label_voxel_fraction_retained": {
+    "ncr": 1.0,
+    "ed": 1.0,
+    "et": 1.0
+  },
+  "patients": [
+    {
+      "patient_id": "BRATS_083",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 1008,
+          "after": 1008,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 5290,
+          "after": 5290,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 1631,
+          "after": 1631,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_213",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 749,
+          "after": 749,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 6515,
+          "after": 6515,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 887,
+          "after": 887,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_272",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 476,
+          "after": 476,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 11673,
+          "after": 11673,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 117,
+          "after": 117,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_125",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 4747,
+          "after": 4747,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 7043,
+          "after": 7043,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 4096,
+          "after": 4096,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_464",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 2147,
+          "after": 2147,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 4361,
+          "after": 4361,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 4945,
+          "after": 4945,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_440",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 88,
+          "after": 88,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 6001,
+          "after": 6001,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 2240,
+          "after": 2240,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_209",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 2195,
+          "after": 2195,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 4467,
+          "after": 4467,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 2544,
+          "after": 2544,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_176",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 128,
+          "after": 128,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 1165,
+          "after": 1165,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 0,
+          "after": 0,
+          "fraction": null
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_322",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 724,
+          "after": 724,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 744,
+          "after": 744,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 1137,
+          "after": 1137,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_445",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 576,
+          "after": 576,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 10883,
+          "after": 10883,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 5045,
+          "after": 5045,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_400",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 2959,
+          "after": 2959,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 9524,
+          "after": 9524,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 3796,
+          "after": 3796,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_334",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 2523,
+          "after": 2523,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 15387,
+          "after": 15387,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 3524,
+          "after": 3524,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_410",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 3131,
+          "after": 3131,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 10567,
+          "after": 10567,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 5633,
+          "after": 5633,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_386",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 1482,
+          "after": 1482,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 6187,
+          "after": 6187,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 2329,
+          "after": 2329,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_357",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 101,
+          "after": 101,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 1296,
+          "after": 1296,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 276,
+          "after": 276,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_314",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 11407,
+          "after": 11407,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 7161,
+          "after": 7161,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 3426,
+          "after": 3426,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_184",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 1145,
+          "after": 1145,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 2450,
+          "after": 2450,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 87,
+          "after": 87,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_020",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 6037,
+          "after": 6037,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 17578,
+          "after": 17578,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 8469,
+          "after": 8469,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_022",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 11448,
+          "after": 11448,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 18392,
+          "after": 18392,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 1187,
+          "after": 1187,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_011",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 2516,
+          "after": 2516,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 11336,
+          "after": 11336,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 3292,
+          "after": 3292,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_032",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 5943,
+          "after": 5943,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 21661,
+          "after": 21661,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 533,
+          "after": 533,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_472",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 779,
+          "after": 779,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 15383,
+          "after": 15383,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 4843,
+          "after": 4843,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_030",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 2517,
+          "after": 2517,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 1922,
+          "after": 1922,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 0,
+          "after": 0,
+          "fraction": null
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_395",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 210,
+          "after": 210,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 3739,
+          "after": 3739,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 4373,
+          "after": 4373,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_309",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 1074,
+          "after": 1074,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 13479,
+          "after": 13479,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 1137,
+          "after": 1137,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_221",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 2204,
+          "after": 2204,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 5313,
+          "after": 5313,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 1952,
+          "after": 1952,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_466",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 8,
+          "after": 8,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 1764,
+          "after": 1764,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 325,
+          "after": 325,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_278",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 49,
+          "after": 49,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 1952,
+          "after": 1952,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 554,
+          "after": 554,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_019",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 2064,
+          "after": 2064,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 14151,
+          "after": 14151,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 2488,
+          "after": 2488,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_096",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 1065,
+          "after": 1065,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 2336,
+          "after": 2336,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 6161,
+          "after": 6161,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_203",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 2195,
+          "after": 2195,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 12365,
+          "after": 12365,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 1228,
+          "after": 1228,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_404",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 9573,
+          "after": 9573,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 7543,
+          "after": 7543,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 4888,
+          "after": 4888,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_122",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 870,
+          "after": 870,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 3960,
+          "after": 3960,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 470,
+          "after": 470,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_423",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 1092,
+          "after": 1092,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 2355,
+          "after": 2355,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 3419,
+          "after": 3419,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_454",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 1412,
+          "after": 1412,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 2302,
+          "after": 2302,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 2603,
+          "after": 2603,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_192",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 1306,
+          "after": 1306,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 10019,
+          "after": 10019,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 804,
+          "after": 804,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_177",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 12,
+          "after": 12,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 1578,
+          "after": 1578,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 0,
+          "after": 0,
+          "fraction": null
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_248",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 1678,
+          "after": 1678,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 4085,
+          "after": 4085,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 1889,
+          "after": 1889,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_403",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 6706,
+          "after": 6706,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 9541,
+          "after": 9541,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 2069,
+          "after": 2069,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_113",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 1464,
+          "after": 1464,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 11716,
+          "after": 11716,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 6802,
+          "after": 6802,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_098",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 2771,
+          "after": 2771,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 6409,
+          "after": 6409,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 2002,
+          "after": 2002,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_010",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 49,
+          "after": 49,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 1952,
+          "after": 1952,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 554,
+          "after": 554,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_064",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 4228,
+          "after": 4228,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 7492,
+          "after": 7492,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 10665,
+          "after": 10665,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_195",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 507,
+          "after": 507,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 11923,
+          "after": 11923,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 1391,
+          "after": 1391,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_219",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 1774,
+          "after": 1774,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 6670,
+          "after": 6670,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 4129,
+          "after": 4129,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_111",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 1032,
+          "after": 1032,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 9010,
+          "after": 9010,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 2021,
+          "after": 2021,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_312",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 41,
+          "after": 41,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 5405,
+          "after": 5405,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 216,
+          "after": 216,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_155",
+      "split": "training",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 6328,
+          "after": 6328,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 16142,
+          "after": 16142,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 10518,
+          "after": 10518,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_255",
+      "split": "validation",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 3378,
+          "after": 3378,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 6613,
+          "after": 6613,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 2608,
+          "after": 2608,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_262",
+      "split": "validation",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 316,
+          "after": 316,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 2227,
+          "after": 2227,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 471,
+          "after": 471,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_239",
+      "split": "validation",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 2538,
+          "after": 2538,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 14263,
+          "after": 14263,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 4053,
+          "after": 4053,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_249",
+      "split": "validation",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 6508,
+          "after": 6508,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 26308,
+          "after": 26308,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 7075,
+          "after": 7075,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_134",
+      "split": "validation",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 960,
+          "after": 960,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 6403,
+          "after": 6403,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 62,
+          "after": 62,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_103",
+      "split": "validation",
+      "source_shape": [
+        121,
+        118,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 3845,
+          "after": 3845,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 5284,
+          "after": 5284,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 2173,
+          "after": 2173,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_185",
+      "split": "validation",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 1104,
+          "after": 1104,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 2916,
+          "after": 2916,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 14,
+          "after": 14,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_251",
+      "split": "validation",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 3097,
+          "after": 3097,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 13968,
+          "after": 13968,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 10182,
+          "after": 10182,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_422",
+      "split": "test",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 1140,
+          "after": 1140,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 11136,
+          "after": 11136,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 7300,
+          "after": 7300,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_026",
+      "split": "test",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 5431,
+          "after": 5431,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 2284,
+          "after": 2284,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 0,
+          "after": 0,
+          "fraction": null
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_067",
+      "split": "test",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 607,
+          "after": 607,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 5672,
+          "after": 5672,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 612,
+          "after": 612,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_476",
+      "split": "test",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 814,
+          "after": 814,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 4891,
+          "after": 4891,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 3663,
+          "after": 3663,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_295",
+      "split": "test",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 1939,
+          "after": 1939,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 21137,
+          "after": 21137,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 3468,
+          "after": 3468,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_448",
+      "split": "test",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 2856,
+          "after": 2856,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 19535,
+          "after": 19535,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 6031,
+          "after": 6031,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_266",
+      "split": "test",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 8718,
+          "after": 8718,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 10499,
+          "after": 10499,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 6269,
+          "after": 6269,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_435",
+      "split": "test",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 2366,
+          "after": 2366,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 4849,
+          "after": 4849,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 3877,
+          "after": 3877,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_246",
+      "split": "test",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 2404,
+          "after": 2404,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 6345,
+          "after": 6345,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 1446,
+          "after": 1446,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_289",
+      "split": "test",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 1509,
+          "after": 1509,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 6323,
+          "after": 6323,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 2503,
+          "after": 2503,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_471",
+      "split": "test",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 3658,
+          "after": 3658,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 16341,
+          "after": 16341,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 5517,
+          "after": 5517,
+          "fraction": 1.0
+        }
+      }
+    },
+    {
+      "patient_id": "BRATS_133",
+      "split": "test",
+      "source_shape": [
+        121,
+        121,
+        78
+      ],
+      "grid": [
+        96,
+        96,
+        96
+      ],
+      "retention": {
+        "ncr": {
+          "label": 1,
+          "before": 955,
+          "after": 955,
+          "fraction": 1.0
+        },
+        "ed": {
+          "label": 2,
+          "before": 5830,
+          "after": 5830,
+          "fraction": 1.0
+        },
+        "et": {
+          "label": 3,
+          "before": 746,
+          "after": 746,
+          "fraction": 1.0
+        }
+      }
+    }
+  ],
+  "cohort_root": "/workspace/data/raw/msd_task01_cpu",
+  "clinical_disclaimer": "Research prototype. Not a clinically validated diagnostic tool."
+}

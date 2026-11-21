@@ -2,7 +2,7 @@
 
 **Research prototype. Not a clinically validated diagnostic system.**
 
-This diagram describes the **implemented** software. Official BraTS volumes are not in the repository. Training on patients has not been run. The smoke path uses random tensors and is excluded from research tables.
+This diagram describes the **implemented** software. Official BraTS volumes are not in the repository. A reduced MSD Task01 CPU run has been measured (`docs/msd_protocol.md`). The smoke path uses random tensors and is excluded from research tables.
 
 ## Pipeline
 

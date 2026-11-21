@@ -25,16 +25,16 @@ Hypotheses H1 (ET HD95 with boundary loss) and H2 (patient-aggregated uncertaint
 | 2 | BraTS-style inventory, validation, patient splits, z-score, patches | No official NIfTI on disk |
 | 3 | PyTorch 3D U-Net, Attention U-Net, Dice+CE, AMP, checkpoints | No BraTS `best.pt` |
 | 4 | SE wrapper, Kervadec boundary, MC dropout, ablation YAML | A0–A5 not trained |
-| 5 | Evaluation, reliability, `collect_results.py` | A/B/C cells empty |
-| 6 | 3D Grad-CAM, orthogonal overlays | No patient figures |
-| 7 | Streamlit dashboard on **real** checkpoints | Patient demo needs BraTS + non-smoke weights |
+| 5 | Evaluation, reliability, `collect_results.py` | MSD CPU A/B/C filled; official BraTS empty |
+| 6 | 3D Grad-CAM, orthogonal overlays | MSD figures in `docs/figures/msd_cpu/` |
+| 7 | Streamlit dashboard on **real** checkpoints | Loads the MSD CPU checkpoints; not a clinical demo |
 | 8 | This documentation set | — |
 
 Also preserved: the existing **YOLOv8n ONNX** detector (`app.py`, `neurovision_x/`), which is a 2D natural-image demo and is not used as MRI.
 
-**Recorded execution (this workspace):** one smoke job, 2 epochs, CPU, PyTorch 2.15.0+cpu, CUDA false. Synthetic val Dice WT/TC/ET ≈ 0.034 / 0.024 / 0.001 on **random tensors**. Interface test of `experiments/smoke/best.pt`: 85,542 parameters, 388.6 ms CPU forward on a 16³ cube. Those figures verify code paths. They are **not** BraTS performance.
+**Recorded execution (this workspace):** MSD Task01 reduced CPU training, PyTorch 2.15.0+cpu, CUDA false, 4 vCPU. Test Dice ET (n=12): A 0.464 ± 0.281, B 0.680 ± 0.257, C 0.638 ± 0.253. Not official BraTS and not clinical. The smoke script remains a random-tensor software check and is not in the A/B/C table.
 
-**Tests:** 105 unit tests collected (`unittest`), 1 skipped when an optional dependency is missing.
+**Tests:** `python -m unittest discover -s tests`.
 
 ## Relevance to advanced computer vision studies
 

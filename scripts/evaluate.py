@@ -25,6 +25,7 @@ from neurovisionx.evaluation.metrics import (
 from neurovisionx.evaluation.regions import region_scores
 from neurovisionx.evaluation.summarize import summarize_values
 from neurovisionx.evaluation.tables import write_patient_csv
+from neurovisionx.evaluation.run_config import config_from_checkpoint
 from neurovisionx.utils.config import load_experiment_config
 from neurovisionx.utils.paths import project_root
 
@@ -32,6 +33,9 @@ from neurovisionx.utils.paths import project_root
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--run-name", default="debug")
+    parser.add_argument("--data-config", default="configs/data.yaml")
+    parser.add_argument("--model-config", default="configs/model.yaml")
+    parser.add_argument("--training-config", default="configs/training.yaml")
     parser.add_argument("--checkpoint", type=Path, default=None)
     parser.add_argument("--split", default="test", choices=("train", "val", "test"))
     parser.add_argument(
@@ -41,16 +45,21 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    config = load_experiment_config()
+    config = load_experiment_config(args.data_config, args.model_config, args.training_config)
     root = project_root()
+    run_dir = root / config["data"]["paths"]["output_root"] / args.run_name
+    ckpt = args.checkpoint or (run_dir / "best.pt")
+    payload = None
+    if ckpt.is_file():
+        from neurovisionx.training.checkpoint import load_checkpoint
+
+        payload = load_checkpoint(ckpt, map_location="cpu")
+        config = config_from_checkpoint(payload, config)
     raw = root / config["data"]["paths"]["raw_root"]
     try:
         require_brats_root(raw)
     except MissingBraTSDataError as exc:
         raise SystemExit(str(exc)) from exc
-
-    run_dir = root / config["data"]["paths"]["output_root"] / args.run_name
-    ckpt = args.checkpoint or (run_dir / "best.pt")
     if not ckpt.is_file():
         raise SystemExit(
             f"No checkpoint at {ckpt}. Training has not been run. No metrics were fabricated."
@@ -66,6 +75,7 @@ def main() -> None:
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model, payload = load_model_from_checkpoint(ckpt, config["model"], map_location=device)
+    config = config_from_checkpoint(payload, config)
     model = model.to(device)
     if payload.get("smoke"):
         raise SystemExit(
@@ -74,6 +84,12 @@ def main() -> None:
         )
     patch = tuple(int(v) for v in config["training"]["schedule"]["patch_size"])
     overlap = float(config["training"]["schedule"].get("infer_overlap", 0.5))
+    from neurovisionx.uncertainty.tta import normalize_uncertainty_method
+
+    uncertainty = config["training"].get("uncertainty") or {}
+    uncertainty_method = normalize_uncertainty_method(uncertainty.get("method", "none"))
+    mc_samples = int(uncertainty.get("samples") or 1)
+    use_mc = uncertainty_method == "mc_dropout" and mc_samples > 1
 
     split_path = run_dir / "patients.json"
     if split_path.is_file():
@@ -98,9 +114,16 @@ def main() -> None:
         image = zscore_channels(np.stack(channels, axis=0))
         target = remap_seg(load_nifti(files["seg"]))
         volume = torch.from_numpy(np.ascontiguousarray(image)).unsqueeze(0).to(device)
-        logits = sliding_window_logits(model, volume, patch, overlap=overlap)
-        probs = torch.softmax(logits, dim=1)[0].detach().cpu().numpy()
-        pred = probs.argmax(axis=0)
+        if use_mc:
+            from neurovisionx.evaluation.predict import infer_volume_mc
+
+            mc = infer_volume_mc(model, volume, patch, overlap=overlap, samples=mc_samples)
+            probs = mc["mean_probs"].detach().cpu().numpy()
+            pred = mc["prediction"].detach().cpu().numpy()
+        else:
+            logits = sliding_window_logits(model, volume, patch, overlap=overlap)
+            probs = torch.softmax(logits, dim=1)[0].detach().cpu().numpy()
+            pred = probs.argmax(axis=0)
         scores = region_scores(pred, target, compute_hd95=True, compute_pr=True)
         scores["brier"] = brier_score_multiclass(probs, target)
         scores["nll"] = negative_log_likelihood(probs, target)
@@ -165,6 +188,19 @@ def main() -> None:
             "Research prototype — not a clinical report."
         ),
         "clinical_disclaimer": "Research prototype. Not a clinically validated diagnostic tool.",
+        "inference": {
+            "method": "mc_dropout" if use_mc else "deterministic",
+            "mc_samples": mc_samples if use_mc else 1,
+        },
+        "spatial": {
+            "hd95_unit": "voxels",
+            "target_spacing_mm": list(config["data"]["preprocessing"].get("target_spacing_mm", [])),
+            "note": (
+                "HD95 is in voxels of the volume that was scored. "
+                "Do not relabel it as millimetres unless that spacing is 1 mm."
+            ),
+        },
+        "dataset_name": (config.get("data") or {}).get("dataset", {}).get("name"),
     }
     out.write_text(json.dumps(payload_out, indent=2), encoding="utf-8")
     csv_path = write_patient_csv(rows, run_dir / f"metrics_{args.split}.csv")
