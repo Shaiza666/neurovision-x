@@ -19,7 +19,7 @@ It is **not** a published paper. No conference acceptance, award, or BraTS leade
 | A1, A3, A4 and C-minus ablations | **Not run** |
 | Hypotheses H1 / H2 | **Not isolated.** C mixes SE, the ET boundary term, and MC dropout. H2's Spearman on C is not a significant negative association on this split. |
 | H3 (CNN vs transformer) | **Deferred** (no CUDA) |
-| Weights | Gitignored `experiments/<run>/best.pt` (~17 MB each). No GitHub Release was published from this environment. SHA-256 is in [`configs/checkpoints.yaml`](configs/checkpoints.yaml). Fetch/reproduce: `scripts/fetch_checkpoints.py`. |
+| Weights | [GitHub Release `v0.1-msd-cpu`](https://github.com/Shaiza666/neurovision-x/releases/tag/v0.1-msd-cpu). `python scripts/fetch_checkpoints.py` downloads them into `experiments/<run>/best.pt` and checks SHA-256. Not committed as git blobs. Not clinically validated. |
 | Unit tests | `python -m unittest discover -s tests` |
 | Research dashboard | `app_research.py` loads these checkpoints. Predictions are the checkpoint forward. |
 
@@ -69,7 +69,19 @@ On this single split, B has the highest ET Dice and C has the lowest ET HD95 in 
 
 The overlay is one test case (`test/BRATS_422`), not the mean in the table. Derived millimetres are the unrounded voxel-mean HD95 times 2: A 31.377921594484693 × 2 = 62.755843188969386 mm, B 7.933093602279043 × 2 = 15.866187204558086 mm, C 4.441340618889577 × 2 = 8.882681237779154 mm. Those products are not a second algorithm.
 
-Checkpoint SHA-256 (`best.pt`): A `f9fea768469d3e6b21c8535bbf180a7f2db42fb14f44c9c22d02a24c6e80c172`, B `6883c13894b6591fd8c46e7c95e730851fbe249327db3d7093edca6a2d89d1a3`, C `4be1e938f2d2e816a938f7a54a8f43c68cfdf4c43a3baaef03b9bdbffddd1c11`.
+## Weights
+
+The three `best.pt` files (~17 MB each) are release assets, not git blobs:
+
+[MSD CPU checkpoints (`v0.1-msd-cpu`)](https://github.com/Shaiza666/neurovision-x/releases/tag/v0.1-msd-cpu)
+
+```bash
+python scripts/fetch_checkpoints.py
+```
+
+That writes `experiments/A0_baseline/best.pt`, `experiments/A2_attention/best.pt`, and `experiments/A5_combination/best.pt`, then checks SHA-256 against [`configs/checkpoints.yaml`](configs/checkpoints.yaml). A mismatch deletes the file. These weights are the reduced CPU run above. They are **not** a clinically validated system and **not** official BraTS models.
+
+SHA-256: A `f9fea768469d3e6b21c8535bbf180a7f2db42fb14f44c9c22d02a24c6e80c172`, B `6883c13894b6591fd8c46e7c95e730851fbe249327db3d7093edca6a2d89d1a3`, C `4be1e938f2d2e816a938f7a54a8f43c68cfdf4c43a3baaef03b9bdbffddd1c11`.
 
 ## Repository layout
 

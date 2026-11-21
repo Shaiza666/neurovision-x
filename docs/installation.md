@@ -97,4 +97,6 @@ Until that tree exists, `train.py` and the dataset scripts raise `MissingBraTSDa
 
 ## 7. Checkpoints
 
-Smoke weights, if trained locally, live under `experiments/smoke/` and are gitignored. They are software tests, not research models. Non-smoke `best.pt` files appear only after a real training job.
+Smoke weights, if trained locally, live under `experiments/smoke/` and are gitignored. They are software tests, not research models.
+
+The reduced MSD CPU checkpoints (A0, A2, A5) are published at [release `v0.1-msd-cpu`](https://github.com/Shaiza666/neurovision-x/releases/tag/v0.1-msd-cpu). `python scripts/fetch_checkpoints.py` downloads them into `experiments/<run>/best.pt` and checks SHA-256. They are not a clinically validated system and not official BraTS weights.
