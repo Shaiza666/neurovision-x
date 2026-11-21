@@ -104,6 +104,8 @@ Obtain volumes from the official BraTS / Synapse distribution after accepting th
 
 # **Not measured**
 
+MSD Task01 reduced CPU results are in `docs/experimental_results.md`. They are not this slide.
+
 | Dice / HD95 / ECE | A | B | C |
 | --- | --- | --- | --- |
 | WT, TC, ET | — | — | — |

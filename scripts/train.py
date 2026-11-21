@@ -10,11 +10,15 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from neurovisionx.training.loop import train_or_explain
+from neurovisionx.utils.config import load_experiment_config
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Train 3D segmentation (BraTS or --smoke).")
+    parser = argparse.ArgumentParser(description="Train 3D segmentation (BraTS, MSD, or --smoke).")
     parser.add_argument("--run-name", default="debug")
+    parser.add_argument("--data-config", default="configs/data.yaml")
+    parser.add_argument("--model-config", default="configs/model.yaml")
+    parser.add_argument("--training-config", default="configs/training.yaml")
     parser.add_argument(
         "--smoke",
         action="store_true",
@@ -33,12 +37,14 @@ def main() -> None:
         help="Override training.yaml seed for a multi-seed job. Does not skip the data gate.",
     )
     args = parser.parse_args()
+    config = load_experiment_config(args.data_config, args.model_config, args.training_config)
     train_or_explain(
         run_name=args.run_name,
         smoke=args.smoke,
         resume=args.resume,
         ablation_id=args.ablation,
         seed=args.seed,
+        config=config,
     )
 
 

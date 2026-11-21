@@ -14,7 +14,7 @@ Phase 8 portfolio pack (numbers match the documentation checklist):
 8. Dataset description — [research_report.md](research_report.md) §6, `data/raw/README.md`
 9. Experimental protocol — [experimental_protocol.md](experimental_protocol.md)
 10. Results and discussion — [experimental_results.md](experimental_results.md) (on-disk JSON only)
-11. Ablation study — [research_report.md](research_report.md) §9 (**not measured** on BraTS)
+11. Ablation study — [research_report.md](research_report.md) §9 (C-minus arms **not measured**; A/B/C were measured only on reduced MSD)
 12. Limitations — [research_report.md](research_report.md) §10
 13. Conclusion and future work — [research_report.md](research_report.md) §11
 14. References — [references.md](references.md) (IEEE), [references.bib](references.bib)
@@ -52,4 +52,4 @@ Portfolio summary (contribution, implementation, CV relevance): [portfolio_summa
 | [references.md](references.md) | IEEE-style bibliography |
 | [references.bib](references.bib) | BibTeX |
 
-BraTS A/B/C Dice, HD95, and ECE are **not measured**. Do not treat smoke-run numbers as challenge results.
+Official BraTS A/B/C scores are **not measured**. The MSD CPU numbers in [experimental_results.md](experimental_results.md) are not a challenge score. Do not treat smoke-run numbers as research results.

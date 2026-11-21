@@ -1,0 +1,23 @@
+published: false
+reason: 'Weights are produced on the training machine under experiments/ and are gitignored.
+  This environment cannot create a GitHub Release. Reproduce with the commands in
+  docs/msd_protocol.md, then compare sha256 if a later release fills the url fields.
+
+  '
+clinical_disclaimer: Research prototype. Not a clinically validated diagnostic tool.
+runs:
+  A0_baseline:
+    url: null
+    sha256: f9fea768469d3e6b21c8535bbf180a7f2db42fb14f44c9c22d02a24c6e80c172
+    filename: best.pt
+    bytes: 16999253
+  A2_attention:
+    url: null
+    sha256: 6883c13894b6591fd8c46e7c95e730851fbe249327db3d7093edca6a2d89d1a3
+    filename: best.pt
+    bytes: 17086149
+  A5_combination:
+    url: null
+    sha256: 4be1e938f2d2e816a938f7a54a8f43c68cfdf4c43a3baaef03b9bdbffddd1c11
+    filename: best.pt
+    bytes: 17004677

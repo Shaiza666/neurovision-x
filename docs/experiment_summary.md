@@ -2,14 +2,15 @@
 
 **Research prototype. Not a clinically validated diagnostic tool.**
 
-Generated: `2026-11-21T08:44:21.786585+00:00`
+Generated: `2026-11-21T14:13:40.293342+00:00`
 
 ## What was actually measured
 
-- 0 research-eligible BraTS test evaluation(s).
-- 1 synthetic smoke run(s), excluded from A/B/C tables.
-- A (3D U-Net), B (Attention U-Net), and C (proposed SE + ET boundary + MC dropout): **not compared on official data**.
-- Component ablations C−SE, C−boundary, C−MC: **not measured** on official data.
+- 3 research-eligible test evaluation(s) from whatever volumes were on disk.
+- 0 synthetic smoke run(s), excluded from A/B/C tables.
+- A (3D U-Net), B (Attention U-Net), and C (proposed SE + ET boundary + MC dropout) are **not compared on official data** (Synapse BraTS).
+- See `docs/experimental_results.md` for the recorded rows. They are not a BraTS leaderboard entry.
+- Component ablations C−SE, C−boundary, C−MC stay **not measured** unless a matching non-smoke folder exists.
 - Multi-seed means: **not measured** (configured seeds: 2026).
 
 ## What is planned, not run

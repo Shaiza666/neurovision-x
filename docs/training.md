@@ -9,7 +9,7 @@ Do not start the 50-epoch 96³ schedule until licensed BraTS data exist **and** 
 .\.venv\Scripts\python scripts\check_resources.py
 ```
 
-This host was recorded as **Python 3.12, PyTorch CPU-only, no NVIDIA driver, ~8 GB RAM, 4 CPU cores**. Official A0–A5 jobs need a **CUDA GPU** and preferably ≥16 GB RAM. Smoke training on 16³ random tensors is the only job that is appropriate here.
+This host was recorded as **Python 3.12, PyTorch CPU-only, no NVIDIA driver, ~8 GB RAM, 4 CPU cores**. Official A0–A5 jobs at 1 mm / 96³ / 50 epochs need a **CUDA GPU**. A separate **reduced MSD CPU protocol** (2 mm, 96³, widths `[8, 16, 32, 64]`, 25 epochs, a patient subset) is documented in [`msd_protocol.md`](msd_protocol.md) and is the run that produces measured Dice/HD95/ECE when official BraTS files are absent. Smoke training on 16³ random tensors remains a software check only.
 
 ## Smoke (software check, not research)
 
