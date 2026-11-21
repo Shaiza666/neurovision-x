@@ -123,7 +123,7 @@ def failure_section(runs: list[dict[str, Any]], spec: dict[str, Any]) -> str:
     if rec is None or rec.get("smoke") or not rec.get("research_eligible"):
         return (
             "No failure-case ranking is available. It requires a non-smoke "
-            "`metrics_test.json` with per-patient Dice on official volumes."
+            "`metrics_test.json` with per-patient Dice."
         )
     patients = (rec.get("metrics_test") or {}).get("patients") or []
     worst = rank_failures(patients, metric="dice_et", k=8, higher_is_better=True)
@@ -175,6 +175,40 @@ def smoke_appendix(runs: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
+def _dataset_section(runs: list[dict[str, Any]]) -> list[str]:
+    lines = ["## Dataset on disk for these runs", ""]
+    seen = False
+    for row in runs:
+        if row.get("smoke"):
+            continue
+        data = ((row.get("metadata") or {}).get("config") or {}).get("data") or {}
+        dataset = data.get("dataset") or {}
+        if not dataset:
+            continue
+        seen = True
+        lines.append(
+            f"- `{row['run_name']}`: `{dataset.get('name', 'unknown')}` — {dataset.get('description', '').strip()}"
+        )
+        reductions = dataset.get("protocol_reductions")
+        if reductions:
+            lines.append(f"  - Protocol reductions: {str(reductions).strip()}")
+        note = dataset.get("license_note")
+        if note:
+            lines.append(f"  - License: {str(note).strip()}")
+    if not seen:
+        lines.append(
+            "No non-smoke run recorded a dataset block. Official BraTS volumes are not implied."
+        )
+    lines.append("")
+    lines.append(
+        "These rows are **not** an official BraTS / Synapse leaderboard comparison. "
+        "MSD Task01 is BraTS 2016/2017-derived and CC-BY-SA 4.0. "
+        "This software is not a clinically validated diagnostic tool."
+    )
+    lines.append("")
+    return lines
+
+
 def build_results_markdown(
     runs: list[dict[str, Any]],
     spec: dict[str, Any],
@@ -210,11 +244,16 @@ def build_results_markdown(
         "",
         f"- Research-eligible test evaluations (non-smoke `metrics_test.json`): **{n_research}**",
         f"- Synthetic smoke folders: **{n_smoke}**",
-        f"- Official BraTS A vs B vs C comparison: **not measured**"
-        if n_research == 0
-        else f"- Research-eligible runs present: {n_research}. Compare only those rows below.",
+        "- Official BraTS / Synapse A vs B vs C comparison: **not measured**.",
+        (
+            "- No research-eligible test JSON is on disk."
+            if n_research == 0
+            else f"- Research-eligible runs present: {n_research}. "
+            "Numbers below are from those files only. They are not a leaderboard entry."
+        ),
         "- No improvement of the proposed method over the baseline is claimed.",
         "",
+        *_dataset_section(runs),
         "## Actual recorded runs",
         "",
         inventory_table(runs),
@@ -231,11 +270,11 @@ def build_results_markdown(
         )
     lines.extend(
         [
-            "## Planned comparison (A / B / C)",
+            "## Comparison (A / B / C)",
             "",
-            "Same patient-level split, same preprocessing YAML, same patch size, as in "
-            "`docs/evaluation_protocol.md`. Cells stay empty until the named run has a "
-            "non-smoke `metrics_test.json`.",
+            "Cells stay empty until the named run has a non-smoke `metrics_test.json`. "
+            "When a run's dataset block names a reduced protocol, these cells are that "
+            "protocol, not the 1 mm BraTS schedule in `docs/evaluation_protocol.md`.",
             "",
             comparison_table(runs, spec, metric_keys),
             "",
@@ -269,8 +308,20 @@ def build_results_markdown(
             "",
             "## Limitations",
             "",
-            "- Official BraTS volumes were not present when this report was generated, so test Dice/HD95/ECE do not exist.",
-            "- Phase 4/5 expensive training still requires protocol approval (`expensive_training_requires_approval: true`).",
+            *(
+                [
+                    "- No research-eligible test JSON is on disk, so Dice/HD95/ECE are not measured.",
+                    "- Official BraTS / Synapse volumes are not in this tree.",
+                ]
+                if n_research == 0
+                else [
+                    "- Measured Dice/HD95/ECE come only from non-smoke `metrics_test.json`.",
+                    "- They are not official BraTS 2021+ leaderboard scores and not a clinical validation.",
+                    "- HD95 in this codebase is in voxels. On a resampled grid, do not relabel it as millimetres.",
+                ]
+            ),
+            "- The 50-epoch 1 mm BraTS protocol in `configs/training.yaml` is separate. "
+            "`expensive_training_requires_approval` stays true for that protocol.",
             "- Smoke Dice is patch-wise on random cubes; it is not comparable to challenge scores.",
             "- GPU memory is undefined on CPU-only machines (`cuda: false`).",
             "- HD95 is NaN when a surface cannot be formed; NaNs are omitted from means, not replaced.",
@@ -308,6 +359,9 @@ def build_results_markdown(
                 "",
             ]
         )
+    appendix = project_root() / "docs" / "msd_measured_appendix.md"
+    if appendix.is_file():
+        lines.extend(["", appendix.read_text(encoding="utf-8").rstrip(), ""])
     return "\n".join(lines).rstrip() + "\n"
 
 
@@ -325,12 +379,17 @@ def build_summary_markdown(runs: list[dict[str, Any]], spec: dict[str, Any]) -> 
             "",
             "## What was actually measured",
             "",
-            f"- {n_research} research-eligible BraTS test evaluation(s).",
+            f"- {n_research} research-eligible test evaluation(s) from whatever volumes were on disk.",
             f"- {n_smoke} synthetic smoke run(s), excluded from A/B/C tables.",
-            "- A (3D U-Net), B (Attention U-Net), and C (proposed SE + ET boundary + MC dropout): **not compared on official data**."
-            if n_research == 0
-            else "- See `docs/experimental_results.md` for any research-eligible rows.",
-            "- Component ablations C−SE, C−boundary, C−MC: **not measured** on official data.",
+            "- A (3D U-Net), B (Attention U-Net), and C (proposed SE + ET boundary + MC dropout) "
+            "are **not compared on official data** (Synapse BraTS).",
+            (
+                "- No research-eligible test JSON is on disk."
+                if n_research == 0
+                else "- See `docs/experimental_results.md` for the recorded rows. "
+                "They are not a BraTS leaderboard entry."
+            ),
+            "- Component ablations C−SE, C−boundary, C−MC stay **not measured** unless a matching non-smoke folder exists.",
             "- Multi-seed means: **not measured** (configured seeds: "
             + ", ".join(str(s) for s in spec.get("seeds", []))
             + ").",

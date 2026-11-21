@@ -81,7 +81,10 @@ def main() -> None:
     print(json.dumps(snapshot, indent=2))
     print(f"Wrote {results_path}")
     print(f"Wrote {summary_path}")
-    print("No training was started. Missing A/B/C cells remain 'not measured'.")
+    print(
+        "No training was started by this script. "
+        "Cells without a non-smoke metrics_test.json stay 'not measured'."
+    )
 
 
 if __name__ == "__main__":

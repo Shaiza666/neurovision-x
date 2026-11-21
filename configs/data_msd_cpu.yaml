@@ -1,0 +1,81 @@
+# Reduced CPU cohort derived from MSD Task01. See docs/msd_protocol.md.
+# Volumes are already on a 2 mm, 96³ grid. Do not crop them again.
+
+dataset:
+  name: msd_task01_cpu_2mm_96
+  description: >
+    Deterministic subset of the seed-2026 MSD Task01 patient split, resampled
+    to 2 mm isotropic, foreground-cropped, then center-cropped or padded to
+    96×96×96. Not official BraTS. Not clinically validated.
+  license_note: CC-BY-SA 4.0 (Medical Segmentation Decathlon Task01). Volumes are gitignored.
+  release: msd_task01_cpu_reduced
+  run_note: >
+    MSD Task01_BrainTumour reduced CPU protocol (2 mm, 96³, features
+    [8, 16, 32, 64]). Not official BraTS 2021+ and not a clinical result.
+  protocol_reductions: >
+    No GPU. Versus configs/training.yaml and configs/model.yaml: spacing 2 mm
+    instead of 1 mm; spatial size fixed at 96³ after foreground crop (native
+    BraTS grid is about 240×240×155); U-Net widths [8, 16, 32, 64] instead of
+    [16, 32, 64, 128]; AdamW lr 1e-3 instead of 1e-4; 25 epochs instead of 50;
+    a prefix of the seed-2026 split (48 train / 8 val / 12 test) instead of
+    every labeled MSD case; AMP off; in-repo networks (optional_monai false).
+    HD95 from scripts/evaluate.py is in voxels of this 2 mm grid.
+
+paths:
+  raw_root: data/raw/msd_task01_cpu
+  processed_root: data/processed/msd_task01_cpu
+  splits_root: data/splits
+  output_root: experiments
+
+discovery:
+  recursive: true
+  max_depth: 6
+
+modalities:
+  - t1
+  - t1ce
+  - t2
+  - flair
+
+labels:
+  ncr: 1
+  ed: 2
+  et: 3
+  nested_regions:
+    - WT
+    - TC
+    - ET
+
+splits:
+  strategy: patient_level
+  train_ratio: 0.70
+  val_ratio: 0.10
+  test_ratio: 0.20
+  seed: 2026
+  forbid_slice_mix: true
+  honor_official_validation: true
+
+validation:
+  expect_ndim: 3
+  spacing_atol_mm: 0.15
+  require_matching_shape: true
+  require_finite: true
+  allowed_label_values: [0, 1, 2, 3, 4]
+
+preprocessing:
+  orientation: RAS
+  target_spacing_mm: [2.0, 2.0, 2.0]
+  resample_if_needed: true
+  intensity: zscore_nonzero
+  crop_foreground: false
+  foreground_margin: 0
+  stats_from: train_only
+
+patches:
+  size: [96, 96, 96]
+  overlap: 0.0
+  foreground_prob: 1.0
+
+qc:
+  n_patients: 4
+  output_dir: data/processed/msd_task01_cpu/qc

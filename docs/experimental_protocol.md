@@ -1,6 +1,6 @@
 # Experimental protocol (Phase 4)
 
-**Status: awaiting approval.** Expensive BraTS training must **not** start until this protocol is approved and official data are present.
+**Status: the 1 mm / 50-epoch BraTS protocol below is still not run.** A separate reduced MSD CPU protocol was executed and is documented in [`msd_protocol.md`](msd_protocol.md). Expensive BraTS training must **not** start until this protocol is approved and official data are present.
 
 This software is a research prototype, not a clinically validated diagnostic tool. Synthetic smoke numbers are not results.
 
