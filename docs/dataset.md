@@ -4,6 +4,8 @@
 
 Official BraTS NIfTI is **not** in this repository. Scripts must not download it automatically. `.nii` / `.nii.gz` are gitignored.
 
+An openly downloadable **additional** path is Medical Segmentation Decathlon Task01_BrainTumour (CC-BY-SA 4.0, BraTS 2016/2017-derived, **not** Synapse BraTS 2021+). See [`msd_protocol.md`](msd_protocol.md). `scripts/download_msd_task01.py` writes `data/raw/msd_task01/`. The BraTS root `data/raw/brats` is unchanged.
+
 ## Required release
 
 The loaders accept **BraTS glioma** volumes with four co-registered modalities (T1, T1ce/T1c, T2, FLAIR) and a nested segmentation. Filename tokens:

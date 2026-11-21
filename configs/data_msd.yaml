@@ -1,0 +1,77 @@
+# Full Medical Segmentation Decathlon Task01_BrainTumour after
+# scripts/download_msd_task01.py. Not official BraTS / Synapse.
+# NIfTI stay under data/raw and are gitignored.
+
+dataset:
+  name: msd_task01_brain_tumour
+  description: >
+    MSD Task01_BrainTumour (BraTS 2016/2017-derived). Four modalities written
+    as separate NIfTI after the Decathlon channel order is mapped to t1, t1ce,
+    t2, flair. Labels remapped from MSD (edema=1, non-enhancing=2, enhancing=3)
+    to this repo (NCR=1, ED=2, ET=3). Not the official BraTS 2021+ release.
+  license_note: >
+    CC-BY-SA 4.0 (Medical Segmentation Decathlon). Do not commit volumes.
+    Not a Synapse BraTS license and not a leaderboard submission.
+  release: msd_task01
+  run_note: >
+    Full-resolution MSD Task01 tree. This file is the data path. The measured
+    CPU experiment used configs/data_msd_cpu.yaml, not this 1 mm schedule.
+
+paths:
+  raw_root: data/raw/msd_task01
+  processed_root: data/processed/msd_task01
+  splits_root: data/splits
+  output_root: experiments
+
+discovery:
+  recursive: true
+  max_depth: 6
+
+modalities:
+  - t1
+  - t1ce
+  - t2
+  - flair
+
+labels:
+  ncr: 1
+  ed: 2
+  et: 3
+  nested_regions:
+    - WT
+    - TC
+    - ET
+
+splits:
+  strategy: patient_level
+  train_ratio: 0.70
+  val_ratio: 0.10
+  test_ratio: 0.20
+  seed: 2026
+  forbid_slice_mix: true
+  honor_official_validation: true
+
+validation:
+  expect_ndim: 3
+  spacing_atol_mm: 0.15
+  require_matching_shape: true
+  require_finite: true
+  allowed_label_values: [0, 1, 2, 3, 4]
+
+preprocessing:
+  orientation: RAS
+  target_spacing_mm: [1.0, 1.0, 1.0]
+  resample_if_needed: true
+  intensity: zscore_nonzero
+  crop_foreground: true
+  foreground_margin: 2
+  stats_from: train_only
+
+patches:
+  size: [96, 96, 96]
+  overlap: 0.0
+  foreground_prob: 0.67
+
+qc:
+  n_patients: 8
+  output_dir: data/processed/msd_task01/qc

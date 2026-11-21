@@ -16,6 +16,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from neurovisionx.data.dataset import MissingBraTSDataError, require_brats_root
 from neurovisionx.explainability.gradcam import DISCLAIMER
+from neurovisionx.evaluation.run_config import config_from_checkpoint
 from neurovisionx.utils.config import load_experiment_config
 from neurovisionx.utils.paths import project_root
 
@@ -67,6 +68,9 @@ def main() -> None:
         description="Explainability figures. Not a clinical report."
     )
     parser.add_argument("--run-name", default="debug")
+    parser.add_argument("--data-config", default="configs/data.yaml")
+    parser.add_argument("--model-config", default="configs/model.yaml")
+    parser.add_argument("--training-config", default="configs/training.yaml")
     parser.add_argument("--checkpoint", type=Path, default=None)
     parser.add_argument("--patient-id", default=None)
     parser.add_argument("--synthetic", action="store_true", help="Random tensors; not MRI.")
@@ -82,13 +86,19 @@ def main() -> None:
     parser.add_argument("--out-dir", type=Path, default=None)
     args = parser.parse_args()
     root = project_root()
-    config = load_experiment_config()
+    config = load_experiment_config(args.data_config, args.model_config, args.training_config)
 
     if args.synthetic:
         out = args.out_dir or (root / "docs" / "figures" / "explain_synthetic_not_mri")
         _synthetic_panel(out, args.class_index, args.also_gradient, args.also_occlusion)
         return
 
+    run_dir = root / config["data"]["paths"]["output_root"] / args.run_name
+    ckpt = args.checkpoint or (run_dir / "best.pt")
+    if ckpt.is_file():
+        from neurovisionx.training.checkpoint import load_checkpoint
+
+        config = config_from_checkpoint(load_checkpoint(ckpt, map_location="cpu"), config)
     raw = root / config["data"]["paths"]["raw_root"]
     try:
         require_brats_root(raw)
@@ -98,8 +108,6 @@ def main() -> None:
     if not args.patient_id:
         raise SystemExit("Pass --patient-id for a real volume, or --synthetic for a layout demo.")
 
-    run_dir = root / config["data"]["paths"]["output_root"] / args.run_name
-    ckpt = args.checkpoint or (run_dir / "best.pt")
     if not ckpt.is_file():
         raise SystemExit(
             f"No checkpoint at {ckpt}. Explainability was not run. No heatmap was fabricated."
@@ -137,7 +145,8 @@ def main() -> None:
     entropy = None
     if args.mc_samples > 1:
         entropy = mc_dropout_stats(model, volume, samples=int(args.mc_samples))["entropy"].cpu().numpy()
-    title = DISCLAIMER
+    dataset_name = (config.get("data") or {}).get("dataset", {}).get("name")
+    title = DISCLAIMER if not dataset_name else f"{dataset_name}. {DISCLAIMER}"
     if payload.get("smoke"):
         title = "SMOKE CHECKPOINT — not BraTS. " + DISCLAIMER
     out = args.out_dir or (run_dir / "explain" / args.patient_id)

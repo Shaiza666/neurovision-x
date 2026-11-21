@@ -1,0 +1,30 @@
+# Reduced-width 3D U-Net for the CPU MSD experiment.
+# Official BraTS config remains configs/model.yaml (features [16, 32, 64, 128]).
+
+name: unet3d
+framework: pytorch
+optional_monai: false
+
+in_channels: 4
+out_channels: 4  # background, NCR, ED, ET
+features: [8, 16, 32, 64]
+num_res_units: 2
+dropout: 0.1
+norm: instance
+activation: PReLU
+
+output_layout: classes
+
+fusion: early
+fusion_reduction: 2
+
+variants:
+  unet3d:
+    enabled: true
+    note: "Same 3D U-Net code as configs/model.yaml, with widths halved for CPU."
+  attention_unet3d:
+    enabled: true
+    note: "Attention U-Net at the same reduced widths. Set name via the ablation."
+  unetr:
+    enabled: false
+    note: "Still deferred. This VM has no CUDA device."

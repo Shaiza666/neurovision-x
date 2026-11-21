@@ -30,6 +30,7 @@ from neurovisionx.evaluation.hard_cases import (
 from neurovisionx.evaluation.metrics import brier_score_multiclass, negative_log_likelihood
 from neurovisionx.evaluation.regions import nested_masks, region_scores
 from neurovisionx.evaluation.summarize import summarize_values
+from neurovisionx.evaluation.run_config import config_from_checkpoint
 from neurovisionx.utils.config import load_experiment_config
 from neurovisionx.utils.paths import project_root
 
@@ -37,22 +38,28 @@ from neurovisionx.utils.paths import project_root
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--run-name", default="debug")
+    parser.add_argument("--data-config", default="configs/data.yaml")
+    parser.add_argument("--model-config", default="configs/model.yaml")
+    parser.add_argument("--training-config", default="configs/training.yaml")
     parser.add_argument("--checkpoint", type=Path, default=None)
     parser.add_argument("--split", default="test", choices=("train", "val", "test"))
     parser.add_argument("--samples", type=int, default=None, help="MC dropout samples (default: training.yaml)")
     parser.add_argument("--write-figures", action="store_true")
     args = parser.parse_args()
 
-    config = load_experiment_config()
+    config = load_experiment_config(args.data_config, args.model_config, args.training_config)
     root = project_root()
+    run_dir = root / config["data"]["paths"]["output_root"] / args.run_name
+    ckpt = args.checkpoint or (run_dir / "best.pt")
+    if ckpt.is_file():
+        from neurovisionx.training.checkpoint import load_checkpoint
+
+        config = config_from_checkpoint(load_checkpoint(ckpt, map_location="cpu"), config)
     raw = root / config["data"]["paths"]["raw_root"]
     try:
         require_brats_root(raw)
     except MissingBraTSDataError as exc:
         raise SystemExit(str(exc)) from exc
-
-    run_dir = root / config["data"]["paths"]["output_root"] / args.run_name
-    ckpt = args.checkpoint or (run_dir / "best.pt")
     if not ckpt.is_file():
         raise SystemExit(
             f"No checkpoint at {ckpt}. Training has not been run. No metrics were fabricated."
@@ -72,6 +79,7 @@ def main() -> None:
         raise SystemExit('PyTorch is required. pip install -e ".[research]"') from exc
 
     model, payload = load_model_from_checkpoint(ckpt, config["model"], map_location="cpu")
+    config = config_from_checkpoint(payload, config)
     if payload.get("smoke") or payload.get("extra", {}).get("smoke"):
         raise SystemExit(
             "This checkpoint was written by a synthetic smoke test. "

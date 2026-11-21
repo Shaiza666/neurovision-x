@@ -196,7 +196,10 @@ def fit(
                 "note": (
                     "Synthetic tensors only. Not BraTS. Not research results."
                     if smoke
-                    else "Training finished on the data that was present for this run."
+                    else str(
+                        request.config.get("data", {}).get("dataset", {}).get("run_note")
+                        or "Training finished on the data that was present for this run."
+                    )
                 ),
                 "epochs_ran": history[-1]["epoch"] if history else 0,
                 "best_metric": best_metric,

@@ -1,0 +1,57 @@
+# Reduced CPU schedule for the MSD Task01 cohort. Not the 50-epoch 1 mm protocol.
+
+seed: 2026
+deterministic: true
+device: cpu
+grad_clip: 1.0
+validate_every: 1
+compute_hd95_on_val: false
+
+optim:
+  name: adamw
+  lr: 0.001
+  weight_decay: 0.00001
+  scheduler: none
+  scheduler_factor: 0.5
+  scheduler_patience: 5
+
+schedule:
+  epochs: 25
+  batch_size: 1
+  patch_size: [96, 96, 96]
+  sw_batch_size: 1
+  amp: false
+  infer_overlap: 0.5
+
+loss:
+  dice_weight: 1.0
+  ce_weight: 1.0
+  boundary_weight: 0.0
+  boundary_classes: null
+  include_background: false
+  smooth: 1.0e-5
+  class_weight_mode: inverse_freq
+  class_weights: null
+
+uncertainty:
+  method: none
+  samples: 1
+  aggregate: patient_mean_entropy
+
+logging:
+  experiments_dir: experiments
+  save_every_epoch: 1
+  require_real_data: true
+
+early_stopping:
+  metric: dice_et
+  mode: max
+  patience: 10
+
+smoke:
+  epochs: 2
+  n_train: 4
+  n_val: 2
+  batch_size: 1
+  patch_size: [16, 16, 16]
+  features: [8, 16]
